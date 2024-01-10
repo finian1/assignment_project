@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'signup.dart';
 
 void main() {
   runApp(const MyApp());
@@ -20,6 +21,7 @@ class MyApp extends StatelessWidget {
       initialRoute: '/',
       routes: {
         '/': (context) => SignInPage(title: 'Sign In'),
+        '/SignUp': (context) => SignUpPage(title: 'Sign Up'),
       },
     );
   }
@@ -72,7 +74,16 @@ class _SignInPageState extends State<SignInPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => SignUpPage(
+                          title: 'Sign Up',
+                        ),
+                      ),
+                    );
+                  },
                   child: const Text('Sign Up'),
                 ),
                 ElevatedButton(
