@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:tmdb_api/tmdb_api.dart';
 import 'signup.dart';
+import 'mainmenu.dart';
 
-void main() {
+void main() async {
+  final tmdb = TMDB(ApiKeys('1701c7dbb0e18d0bd9948fd6d5ae94d7',
+      'eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIxNzAxYzdkYmIwZTE4ZDBiZDk5NDhmZDZkNWFlOTRkNyIsInN1YiI6IjY1YTM2OTlhZTljMGRjMDExZGE0NmU0NCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.lQkSajLr6dl5GpgIbktKqYdsTT7jOhbUxpV1XCb8rsw'));
   runApp(const MyApp());
 }
 
@@ -13,7 +17,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'CineGoal',
+      title: 'MoviXP',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
@@ -22,6 +26,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/': (context) => SignInPage(title: 'Sign In'),
         '/SignUp': (context) => SignUpPage(title: 'Sign Up'),
+        '/MainMenu': (context) => MainMenuPage(title: 'MainMenu'),
       },
     );
   }
