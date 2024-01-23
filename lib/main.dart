@@ -11,8 +11,8 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
+  const MyApp({super.key, this.tmbd});
+  final tmbd;
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
@@ -24,23 +24,31 @@ class MyApp extends StatelessWidget {
       ),
       initialRoute: '/',
       routes: {
-        '/': (context) => SignInPage(title: 'Sign In'),
+        '/': (context) => SignInPage(
+              title: 'Sign In',
+              tmbd: tmbd,
+            ),
         '/SignUp': (context) => SignUpPage(title: 'Sign Up'),
-        '/MainMenu': (context) => MainMenuPage(title: 'MainMenu'),
+        '/MainMenu': (context) => MainMenuPage(
+              title: 'Main Menu',
+              tmdb: tmbd,
+            ),
       },
     );
   }
 }
 
 class SignInPage extends StatefulWidget {
-  const SignInPage({super.key, required this.title});
+  const SignInPage({super.key, required this.title, this.tmbd});
   final String title;
+  final tmbd;
 
   @override
   State<SignInPage> createState() => _SignInPageState();
 }
 
 class _SignInPageState extends State<SignInPage> {
+  _SignInPageState();
   TextEditingController usernameController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
 
@@ -79,6 +87,7 @@ class _SignInPageState extends State<SignInPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 ElevatedButton(
+                  //Sign up button
                   onPressed: () {
                     Navigator.push(
                       context,
@@ -92,7 +101,17 @@ class _SignInPageState extends State<SignInPage> {
                   child: const Text('Sign Up'),
                 ),
                 ElevatedButton(
-                  onPressed: () {},
+                  //Log in button
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => MainMenuPage(
+                          title: 'Main Menu',
+                        ),
+                      ),
+                    );
+                  },
                   child: const Text('Log In'),
                 ),
               ],
