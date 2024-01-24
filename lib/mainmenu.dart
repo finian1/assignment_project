@@ -2,6 +2,9 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'dart:async';
+import 'package:path/path.dart';
+import 'package:sqflite/sqflite.dart';
 
 class MovieData {
   MovieData({required this.movieID, required this.isCompleted});
@@ -10,15 +13,17 @@ class MovieData {
 }
 
 class MovieGroupData {
-  MovieGroupData({required this.header, this.data});
+  MovieGroupData({required this.header, this.data = const []});
   String header;
-  List<MovieData>? data;
+  List<MovieData> data;
 }
 
 class MainMenuPage extends StatefulWidget {
   const MainMenuPage({super.key, required this.title, this.tmdb});
   final tmdb;
   final String title;
+  @override
+  Key? get key => const Key("MainMenu");
 
   @override
   State<MainMenuPage> createState() => _MainMenuPageState();
@@ -52,7 +57,10 @@ class _MainMenuPageState extends State<MainMenuPage> {
     MovieGroupData(
       header: "Test 3",
       data: [
-        MovieData(movieID: 11, isCompleted: false),
+        MovieData(
+          movieID: 11,
+          isCompleted: false,
+        ),
         MovieData(movieID: 12, isCompleted: false),
         MovieData(movieID: 13, isCompleted: false),
         MovieData(movieID: 14, isCompleted: false),
@@ -70,15 +78,18 @@ class _MainMenuPageState extends State<MainMenuPage> {
       ],
     ),
   ];
+
   List<MovieGroup>? movieGroups;
 
   @override
   Widget build(BuildContext context) {
     movieGroups = List<MovieGroup>.generate(
-      5,
+      4,
       (index) => MovieGroup(
         header: groupData[index].header,
         index: index,
+        onMovieChanged: onMovieChanged,
+        movieData: groupData[index].data,
       ),
     );
     return Scaffold(
@@ -140,21 +151,42 @@ class _MainMenuPageState extends State<MainMenuPage> {
       ),
     );
   }
+
+  void onMovieChanged(int groupIndex, int movieIndex, bool val) {
+    setState(() {
+      groupData[groupIndex].data[movieIndex].isCompleted = val;
+    });
+  }
 }
 
 class MovieGroup extends StatefulWidget {
-  MovieGroup({super.key, this.header = "", required this.index});
+  MovieGroup(
+      {super.key,
+      this.header = "",
+      required this.index,
+      required this.onMovieChanged,
+      required this.movieData});
   final String header;
   final int index;
+  final Function(int, int, bool) onMovieChanged;
+  final List<MovieData> movieData;
+  var database;
   @override
   State<MovieGroup> createState() => _MovieGroupState();
 }
 
 class _MovieGroupState extends State<MovieGroup> {
-  List<Widget> movies = [];
-
+  List<MovieCard> movies = [];
   @override
   Widget build(BuildContext context) {
+    movies = List<MovieCard>.generate(
+        widget.movieData.length,
+        (index) => MovieCard(
+              index: index,
+              onMovieCompleted: onMovieChanged,
+              movieName: "TestMovie",
+              isCompleted: widget.movieData[index].isCompleted,
+            ));
     return Column(
       children: [
         Text(widget.header),
@@ -177,21 +209,39 @@ class _MovieGroupState extends State<MovieGroup> {
       ],
     );
   }
+
+  void initDatabase() async {
+    widget.database =
+        openDatabase(join(await getDatabasesPath(), 'moviegroups_database.db'));
+  }
+
+  void onMovieChanged(int index, bool val) {
+    widget.onMovieChanged(widget.index, index, val);
+  }
 }
 
 class MovieCard extends StatefulWidget {
-  MovieCard({super.key, this.movieName = "", required this.index});
+  MovieCard({
+    super.key,
+    this.movieName = "",
+    required this.index,
+    required this.onMovieCompleted,
+    required this.isCompleted,
+  });
+
   final String movieName;
   final int index;
+  final Function(int, bool) onMovieCompleted;
+  final bool isCompleted;
   @override
   State<MovieCard> createState() => _MovieCardState();
 }
 
 class _MovieCardState extends State<MovieCard> {
-  final key = GlobalKey<_MovieGroupState>();
   bool isChecked = false;
   @override
   Widget build(BuildContext context) {
+    isChecked = widget.isCompleted;
     return Container(
       width: 190,
       height: 59,
@@ -223,6 +273,7 @@ class _MovieCardState extends State<MovieCard> {
                 onChanged: (val) {
                   setState(() {
                     isChecked = val!;
+                    widget.onMovieCompleted(widget.index, val);
                   });
                 },
               ),
