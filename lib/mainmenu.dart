@@ -6,10 +6,14 @@ import 'dart:async';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
+import 'database.dart';
+
 class MovieData {
-  MovieData({required this.movieID, required this.isCompleted});
+  MovieData(
+      {required this.movieID, required this.isCompleted, required this.tmdbID});
   bool isCompleted;
   int movieID;
+  int tmdbID;
 }
 
 class MovieGroupData {
@@ -34,7 +38,7 @@ class _MainMenuPageState extends State<MainMenuPage> {
   CarouselController movieGroupsController = CarouselController();
   final List<MovieGroupData> groupData = [
     //Group 1
-    MovieGroupData(
+    /*MovieGroupData(
       header: "Test 1",
       data: [
         MovieData(movieID: 1, isCompleted: false),
@@ -76,7 +80,7 @@ class _MainMenuPageState extends State<MainMenuPage> {
         MovieData(movieID: 19, isCompleted: false),
         MovieData(movieID: 20, isCompleted: false),
       ],
-    ),
+    ),*/
   ];
 
   List<MovieGroup>? movieGroups;
@@ -170,7 +174,6 @@ class MovieGroup extends StatefulWidget {
   final int index;
   final Function(int, int, bool) onMovieChanged;
   final List<MovieData> movieData;
-  var database;
   @override
   State<MovieGroup> createState() => _MovieGroupState();
 }
@@ -208,11 +211,6 @@ class _MovieGroupState extends State<MovieGroup> {
         ),
       ],
     );
-  }
-
-  void initDatabase() async {
-    widget.database =
-        openDatabase(join(await getDatabasesPath(), 'moviegroups_database.db'));
   }
 
   void onMovieChanged(int index, bool val) {
