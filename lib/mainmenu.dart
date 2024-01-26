@@ -9,15 +9,15 @@ import 'package:sqflite/sqflite.dart';
 import 'database.dart';
 
 class MovieData {
-  MovieData(
-      {required this.movieID, required this.isCompleted, required this.tmdbID});
+  MovieData({required this.movieID, required this.isCompleted});
   bool isCompleted;
   int movieID;
-  int tmdbID;
 }
 
 class MovieGroupData {
-  MovieGroupData({required this.header, this.data = const []});
+  MovieGroupData(
+      {required this.id, required this.header, this.data = const []});
+  int id;
   String header;
   List<MovieData> data;
 }
@@ -36,59 +36,14 @@ class MainMenuPage extends StatefulWidget {
 class _MainMenuPageState extends State<MainMenuPage> {
   _MainMenuPageState();
   CarouselController movieGroupsController = CarouselController();
-  final List<MovieGroupData> groupData = [
-    //Group 1
-    /*MovieGroupData(
-      header: "Test 1",
-      data: [
-        MovieData(movieID: 1, isCompleted: false),
-        MovieData(movieID: 2, isCompleted: false),
-        MovieData(movieID: 3, isCompleted: false),
-        MovieData(movieID: 4, isCompleted: false),
-        MovieData(movieID: 5, isCompleted: false),
-      ],
-    ),
-    MovieGroupData(
-      header: "Test 2",
-      data: [
-        MovieData(movieID: 6, isCompleted: false),
-        MovieData(movieID: 7, isCompleted: false),
-        MovieData(movieID: 8, isCompleted: false),
-        MovieData(movieID: 9, isCompleted: false),
-        MovieData(movieID: 10, isCompleted: false),
-      ],
-    ),
-    MovieGroupData(
-      header: "Test 3",
-      data: [
-        MovieData(
-          movieID: 11,
-          isCompleted: false,
-        ),
-        MovieData(movieID: 12, isCompleted: false),
-        MovieData(movieID: 13, isCompleted: false),
-        MovieData(movieID: 14, isCompleted: false),
-        MovieData(movieID: 15, isCompleted: false),
-      ],
-    ),
-    MovieGroupData(
-      header: "Test 4",
-      data: [
-        MovieData(movieID: 16, isCompleted: false),
-        MovieData(movieID: 17, isCompleted: false),
-        MovieData(movieID: 18, isCompleted: false),
-        MovieData(movieID: 19, isCompleted: false),
-        MovieData(movieID: 20, isCompleted: false),
-      ],
-    ),*/
-  ];
+  List<MovieGroupData> groupData = [];
 
   List<MovieGroup>? movieGroups;
-
   @override
   Widget build(BuildContext context) {
+    initGroupData();
     movieGroups = List<MovieGroup>.generate(
-      4,
+      groupData.length,
       (index) => MovieGroup(
         header: groupData[index].header,
         index: index,
@@ -160,6 +115,10 @@ class _MainMenuPageState extends State<MainMenuPage> {
     setState(() {
       groupData[groupIndex].data[movieIndex].isCompleted = val;
     });
+  }
+
+  void initGroupData() async {
+    groupData = await DatabaseHelper.getMovieGroups();
   }
 }
 
