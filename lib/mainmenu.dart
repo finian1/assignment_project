@@ -39,18 +39,20 @@ class _MainMenuPageState extends State<MainMenuPage> {
   List<MovieGroupData> groupData = [];
 
   List<MovieGroup>? movieGroups;
+  bool dataGrabbed = false;
+
+  @override
+  void initState() {
+    print("innit");
+    super.initState();
+    initGroupData();
+    //while (!dataGrabbed) {}
+    print("Innit fini");
+  }
+
   @override
   Widget build(BuildContext context) {
-    initGroupData();
-    movieGroups = List<MovieGroup>.generate(
-      groupData.length,
-      (index) => MovieGroup(
-        header: groupData[index].header,
-        index: index,
-        onMovieChanged: onMovieChanged,
-        movieData: groupData[index].data,
-      ),
-    );
+    print("Buildin");
     return Scaffold(
       body: ListView(
         children: [
@@ -117,8 +119,22 @@ class _MainMenuPageState extends State<MainMenuPage> {
     });
   }
 
-  void initGroupData() async {
+  Future<void> initGroupData() async {
+    print("grabbing data");
     groupData = await DatabaseHelper.getMovieGroups();
+    setState(() {
+      movieGroups = List<MovieGroup>.generate(
+        groupData.length,
+        (index) => MovieGroup(
+          header: groupData[index].header,
+          index: index,
+          onMovieChanged: onMovieChanged,
+          movieData: groupData[index].data,
+        ),
+      );
+      dataGrabbed = true;
+    });
+    print("Data grabbed");
   }
 }
 

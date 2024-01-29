@@ -8,7 +8,8 @@ import 'database.dart';
 void main() async {
   final tmdb = TMDB(ApiKeys('1701c7dbb0e18d0bd9948fd6d5ae94d7',
       'eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIxNzAxYzdkYmIwZTE4ZDBiZDk5NDhmZDZkNWFlOTRkNyIsInN1YiI6IjY1YTM2OTlhZTljMGRjMDExZGE0NmU0NCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.lQkSajLr6dl5GpgIbktKqYdsTT7jOhbUxpV1XCb8rsw'));
-  DatabaseHelper.getDBConnector();
+  await DatabaseHelper.getDBConnector();
+  await DatabaseHelper.createTables();
   runApp(const MyApp());
 }
 
