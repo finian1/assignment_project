@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:assignment_project/main.dart';
+import 'package:assignment_project/database.dart';
 
 void main() {
   testWidgets('Counter increments smoke test', (WidgetTester tester) async {
@@ -26,5 +27,19 @@ void main() {
     // Verify that our counter has incremented.
     expect(find.text('0'), findsNothing);
     expect(find.text('1'), findsOneWidget);
+  });
+  test('Testing if database is created and read correctly', () {
+    //Arrange
+    DatabaseHelper.getDBConnector();
+    DatabaseHelper.addNewMovie(0, false);
+    DatabaseHelper.addNewMovie(1, false);
+    DatabaseHelper.addNewMovie(2, false);
+    DatabaseHelper.addNewMovie(3, false);
+    DatabaseHelper.addNewMovie(4, false);
+    DatabaseHelper.addNewGroup(1, "test", [0, 1, 2, 3, 4]);
+
+    //Act
+
+    //Assert
   });
 }

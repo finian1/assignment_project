@@ -26,7 +26,7 @@ class DatabaseHelper {
       join(await getDatabasesPath(), "movie_groups_database.db"),
       onCreate: (db, version) {
         db.execute(
-          'CREATE TABLE movieGroups(id INTEGER PRIMARY KEY, groupName TEXT, movie1 INTEGER, movie2 INTEGER, movie3 INTEGER, movie4 INTEGER, movie5 INTEGER)',
+          'CREATE TABLE movieGroups(id INTEGER PRIMARY KEY, groupName STRING, movie1 INTEGER, movie2 INTEGER, movie3 INTEGER, movie4 INTEGER, movie5 INTEGER)',
         );
         print("created movieGroup table");
 
@@ -149,7 +149,7 @@ class DatabaseHelper {
 
         return MovieGroupData(
           id: groupMaps[i]['id'] as int,
-          header: "TBD", //groupMaps[i]['header'] as String,
+          header: 'tbd', //groupMaps[i]['groupName'] as String,
           data: movieDatas,
         );
       },
