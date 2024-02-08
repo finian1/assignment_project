@@ -4,9 +4,14 @@ import 'package:assignment_project/mainmenu.dart';
 import 'package:flutter/widgets.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:tmdb_api/tmdb_api.dart';
 
 class DatabaseHelper {
   static Database? _database;
+  static TMDB? tmdb;
+
+  static const String baseUrl = "https://api.themoviedb.org/3";
+  static const String imageBaseUrl = "https://image.tmdb.org/t/p/w500";
 
   ///Returns db instance if already opened
   ///else call the initDatabase
@@ -51,12 +56,13 @@ class DatabaseHelper {
 
     print("Test");
 
-    addNewMovie(0, false);
-    addNewMovie(1, false);
-    addNewMovie(2, false);
-    addNewMovie(3, false);
-    addNewMovie(4, false);
-    addNewGroup(1, "test", [0, 1, 2, 3, 4]);
+    await addNewMovie(0, false);
+    await addNewMovie(1, false);
+    await addNewMovie(2, false);
+    await addNewMovie(3, false);
+    await addNewMovie(4, false);
+    await addNewGroup(1, "test", [0, 1, 2, 3, 4]);
+    await addNewGroup(2, "hello", [2, 3, 1, 3, 4]);
   }
 
   static Future<void> addNewMovie(int uniqueID, bool watched) async {
@@ -69,9 +75,6 @@ class DatabaseHelper {
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
     print(success);
-    if (success == 0) {
-      print("Faild to add movie");
-    }
   }
 
   static Future<void> addNewGroup(
@@ -84,7 +87,7 @@ class DatabaseHelper {
         join(await getDatabasesPath(), "movie_groups_database.db"));
     Map<String, dynamic> input = {
       'id': uniqueID,
-      //'groupName': header,
+      'groupName': header,
       'movie1': movieIDs[0],
       'movie2': movieIDs[1],
       'movie3': movieIDs[2],
@@ -97,62 +100,39 @@ class DatabaseHelper {
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
     print(success);
-    if (success == 0) {
-      print("Faild to add group");
-    }
   }
 
   static Future<List<MovieGroupData>> getMovieGroups() async {
     print("Opening database");
     Database db = await openDatabase(
         join(await getDatabasesPath(), "movie_groups_database.db"));
-    print("Attempting to get group maps");
+
     final List<Map<String, dynamic>> groupMaps = await db.query('movieGroups');
-    print("Got group maps");
     final List<Map<String, dynamic>> movieMaps = await db.query('movies');
 
     return List.generate(
       groupMaps.length,
       (i) {
         final List<MovieData> movieDatas = [
-          MovieData(
-              movieID: movieMaps[groupMaps[i]['movie1'] as int]['id'] as int,
-              isCompleted:
-                  movieMaps[groupMaps[i]['movie1'] as int]['watched'] == 0
-                      ? false
-                      : true),
-          MovieData(
-              movieID: movieMaps[groupMaps[i]['movie2'] as int]['id'] as int,
-              isCompleted:
-                  movieMaps[groupMaps[i]['movie2'] as int]['watched'] == 0
-                      ? false
-                      : true),
-          MovieData(
-              movieID: movieMaps[groupMaps[i]['movie3'] as int]['id'] as int,
-              isCompleted:
-                  movieMaps[groupMaps[i]['movie3'] as int]['watched'] == 0
-                      ? false
-                      : true),
-          MovieData(
-              movieID: movieMaps[groupMaps[i]['movie4'] as int]['id'] as int,
-              isCompleted:
-                  movieMaps[groupMaps[i]['movie4'] as int]['watched'] == 0
-                      ? false
-                      : true),
-          MovieData(
-              movieID: movieMaps[groupMaps[i]['movie5'] as int]['id'] as int,
-              isCompleted:
-                  movieMaps[groupMaps[i]['movie5'] as int]['watched'] == 0
-                      ? false
-                      : true),
+          generateMovieData(movieMaps[groupMaps[i]['movie1'] as int]),
+          generateMovieData(movieMaps[groupMaps[i]['movie2'] as int]),
+          generateMovieData(movieMaps[groupMaps[i]['movie3'] as int]),
+          generateMovieData(movieMaps[groupMaps[i]['movie4'] as int]),
+          generateMovieData(movieMaps[groupMaps[i]['movie5'] as int]),
         ];
 
         return MovieGroupData(
           id: groupMaps[i]['id'] as int,
-          header: 'tbd', //groupMaps[i]['groupName'] as String,
+          header: groupMaps[i]['groupName'] as String,
           data: movieDatas,
         );
       },
     );
+  }
+
+  static MovieData generateMovieData(Map<String, dynamic> movieMap) {
+    return MovieData(
+        movieID: movieMap['id'] as int,
+        isCompleted: movieMap['watched'] == 0 ? false : true);
   }
 }

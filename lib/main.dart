@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:sqflite/sqflite.dart';
 import 'package:tmdb_api/tmdb_api.dart';
 import 'signup.dart';
 import 'mainmenu.dart';
 import 'database.dart';
+import 'dart:io';
 
 void main() async {
-  final tmdb = TMDB(ApiKeys('1701c7dbb0e18d0bd9948fd6d5ae94d7',
+  DatabaseHelper.tmdb = TMDB(ApiKeys('1701c7dbb0e18d0bd9948fd6d5ae94d7',
       'eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIxNzAxYzdkYmIwZTE4ZDBiZDk5NDhmZDZkNWFlOTRkNyIsInN1YiI6IjY1YTM2OTlhZTljMGRjMDExZGE0NmU0NCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.lQkSajLr6dl5GpgIbktKqYdsTT7jOhbUxpV1XCb8rsw'));
   await DatabaseHelper.getDBConnector();
   await DatabaseHelper.createTables();
@@ -14,8 +16,7 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key, this.tmbd});
-  final tmbd;
+  const MyApp({super.key});
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
@@ -29,12 +30,10 @@ class MyApp extends StatelessWidget {
       routes: {
         '/': (context) => SignInPage(
               title: 'Sign In',
-              tmbd: tmbd,
             ),
         '/SignUp': (context) => SignUpPage(title: 'Sign Up'),
         '/MainMenu': (context) => MainMenuPage(
               title: 'Main Menu',
-              tmdb: tmbd,
             ),
       },
     );
@@ -42,9 +41,8 @@ class MyApp extends StatelessWidget {
 }
 
 class SignInPage extends StatefulWidget {
-  const SignInPage({super.key, required this.title, this.tmbd});
+  const SignInPage({super.key, required this.title});
   final String title;
-  final tmbd;
 
   @override
   State<SignInPage> createState() => _SignInPageState();

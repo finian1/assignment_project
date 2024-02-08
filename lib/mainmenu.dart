@@ -5,6 +5,8 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'dart:async';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:tmdb_api/tmdb_api.dart';
+import 'dart:io';
 
 import 'database.dart';
 
@@ -23,8 +25,7 @@ class MovieGroupData {
 }
 
 class MainMenuPage extends StatefulWidget {
-  const MainMenuPage({super.key, required this.title, this.tmdb});
-  final tmdb;
+  const MainMenuPage({super.key, required this.title});
   final String title;
   @override
   Key? get key => const Key("MainMenu");
@@ -43,11 +44,9 @@ class _MainMenuPageState extends State<MainMenuPage> {
 
   @override
   void initState() {
-    print("innit");
     super.initState();
     initGroupData();
     //while (!dataGrabbed) {}
-    print("Innit fini");
   }
 
   @override
@@ -138,6 +137,7 @@ class _MainMenuPageState extends State<MainMenuPage> {
   }
 }
 
+//A movie group is a panel within the carrousel that shows five movies and a completion value.
 class MovieGroup extends StatefulWidget {
   MovieGroup(
       {super.key,
@@ -162,7 +162,7 @@ class _MovieGroupState extends State<MovieGroup> {
         (index) => MovieCard(
               index: index,
               onMovieCompleted: onMovieChanged,
-              movieName: "TestMovie",
+              movieName: "",
               isCompleted: widget.movieData[index].isCompleted,
             ));
     return Column(
@@ -193,6 +193,7 @@ class _MovieGroupState extends State<MovieGroup> {
   }
 }
 
+//Movie cards display the movie's name and if the movie has been watched.
 class MovieCard extends StatefulWidget {
   MovieCard({
     super.key,
@@ -205,16 +206,14 @@ class MovieCard extends StatefulWidget {
   final String movieName;
   final int index;
   final Function(int, bool) onMovieCompleted;
-  final bool isCompleted;
+  bool isCompleted;
   @override
   State<MovieCard> createState() => _MovieCardState();
 }
 
 class _MovieCardState extends State<MovieCard> {
-  bool isChecked = false;
   @override
   Widget build(BuildContext context) {
-    isChecked = widget.isCompleted;
     return Container(
       width: 190,
       height: 59,
@@ -242,10 +241,10 @@ class _MovieCardState extends State<MovieCard> {
                 ),
               ),
               child: Checkbox(
-                value: isChecked,
+                value: widget.isCompleted,
                 onChanged: (val) {
                   setState(() {
-                    isChecked = val!;
+                    widget.isCompleted = val!;
                     widget.onMovieCompleted(widget.index, val);
                   });
                 },
