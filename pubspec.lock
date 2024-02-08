@@ -300,10 +300,10 @@ packages:
     dependency: "direct main"
     description:
       name: tmdb_api
-      sha256: "31f6ff1bc361ccabf5b5ccc52542e5f9b8db61dcebb74712f9ca8a77dadc7d57"
+      sha256: d0db63d044dcc104731610b68f496d7a672dde70b5261f6272c8dfba2d4489d7
       url: "https://pub.dev"
     source: hosted
-    version: "2.1.5"
+    version: "2.2.0"
   typed_data:
     dependency: transitive
     description:

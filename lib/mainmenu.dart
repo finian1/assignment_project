@@ -197,13 +197,13 @@ class _MovieGroupState extends State<MovieGroup> {
 class MovieCard extends StatefulWidget {
   MovieCard({
     super.key,
-    this.movieName = "",
+    this.movieName = "N/A",
     required this.index,
     required this.onMovieCompleted,
     required this.isCompleted,
   });
 
-  final String movieName;
+  String movieName;
   final int index;
   final Function(int, bool) onMovieCompleted;
   bool isCompleted;
@@ -213,6 +213,17 @@ class MovieCard extends StatefulWidget {
 
 class _MovieCardState extends State<MovieCard> {
   @override
+  void initState() {
+    initName();
+  }
+
+  Future<void> initName() async {
+    String name = await DatabaseHelper.getNameFromID('tt15009428');
+    setState(() {
+      widget.movieName = name;
+    });
+  }
+
   Widget build(BuildContext context) {
     return Container(
       width: 190,

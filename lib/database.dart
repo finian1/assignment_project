@@ -8,10 +8,17 @@ import 'package:tmdb_api/tmdb_api.dart';
 
 class DatabaseHelper {
   static Database? _database;
-  static TMDB? tmdb;
+  static TMDB tmdb = TMDB(ApiKeys('1701c7dbb0e18d0bd9948fd6d5ae94d7',
+      'eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIxNzAxYzdkYmIwZTE4ZDBiZDk5NDhmZDZkNWFlOTRkNyIsInN1YiI6IjY1YTM2OTlhZTljMGRjMDExZGE0NmU0NCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.lQkSajLr6dl5GpgIbktKqYdsTT7jOhbUxpV1XCb8rsw'));
 
   static const String baseUrl = "https://api.themoviedb.org/3";
   static const String imageBaseUrl = "https://image.tmdb.org/t/p/w500";
+
+  static Future<String> getNameFromID(String id) async {
+    Map movie = await tmdb.v3.find.getById(id);
+
+    return movie['movie_results'][0]["title"] as String;
+  }
 
   ///Returns db instance if already opened
   ///else call the initDatabase
@@ -53,9 +60,6 @@ class DatabaseHelper {
   static Future<void> createTables() async {
     Database db = await openDatabase(
         join(await getDatabasesPath(), "movie_groups_database.db"));
-
-    print("Test");
-
     await addNewMovie(0, false);
     await addNewMovie(1, false);
     await addNewMovie(2, false);
