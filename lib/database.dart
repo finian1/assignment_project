@@ -20,6 +20,12 @@ class DatabaseHelper {
     return movie['movie_results'][0]["title"] as String;
   }
 
+  static Future<List<dynamic>> searchForMovies(String name) async {
+    Map movies = await tmdb.v3.search.queryMovies(name);
+
+    return movies['results'];
+  }
+
   ///Returns db instance if already opened
   ///else call the initDatabase
   static Future<Database?> getDBConnector() async {

@@ -1,10 +1,19 @@
+import 'package:assignment_project/database.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'dart:async';
 
+class MoviePair {
+  MoviePair(this.name, this.id);
+  String name = "";
+  String id = "";
+}
+
 class AddGroupPage extends StatefulWidget {
   AddGroupPage({super.key, required this.title});
   final String title;
+  final loadedMoviePairs = <MoviePair>[];
+  final loadedMovieCards = <MovieCard>[];
   @override
   State<AddGroupPage> createState() => _AddGroupPageState();
 }
@@ -21,7 +30,7 @@ class _AddGroupPageState extends State<AddGroupPage> {
     return Scaffold(
       body: ListView(
         children: [
-          SizedBox(
+          const SizedBox(
             width: double.infinity,
             height: 50,
             child: Text(
@@ -35,7 +44,7 @@ class _AddGroupPageState extends State<AddGroupPage> {
             height: 90,
             child: Row(
               children: [
-                SizedBox(
+                const SizedBox(
                   width: 20,
                   height: 90,
                 ),
@@ -49,10 +58,13 @@ class _AddGroupPageState extends State<AddGroupPage> {
                     ),
                   ),
                 ),
+                //Search button
                 ElevatedButton.icon(
                   icon: const Icon(Icons.search),
-                  label: Text(""),
-                  onPressed: () {},
+                  label: const Text(""),
+                  onPressed: () {
+                    searchMovies(searchController.text);
+                  },
                 ),
               ],
             ),
@@ -60,9 +72,12 @@ class _AddGroupPageState extends State<AddGroupPage> {
           SizedBox(
             width: double.infinity,
             height: 500,
-            child: ListView(children: [
-              Card(child: Text("Movie 1")),
-            ]),
+            child: ListView.builder(
+              itemCount: widget.loadedMovieCards.length,
+              itemBuilder: (context, index) {
+                return MovieCard(widget.loadedMoviePairs[index].name);
+              },
+            ),
           ),
           SizedBox(
             width: double.infinity,
@@ -88,8 +103,12 @@ class _AddGroupPageState extends State<AddGroupPage> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  ElevatedButton(onPressed: () {}, child: Text("Back")),
-                  SizedBox(
+                  ElevatedButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: const Text("Back")),
+                  const SizedBox(
                     width: 50,
                     height: 100,
                   ),
@@ -99,6 +118,35 @@ class _AddGroupPageState extends State<AddGroupPage> {
             ),
           )
         ],
+      ),
+    );
+  }
+
+  Future<void> searchMovies(String searchTerm) async {
+    List<dynamic> movies = await DatabaseHelper.searchForMovies(searchTerm);
+    setState(() {
+      widget.loadedMovieCards.clear();
+      widget.loadedMoviePairs.clear();
+      for (int i = 0; i < movies.length; i++) {
+        widget.loadedMoviePairs.add(MoviePair(
+            movies[i]['title'].toString(), movies[i]['id'].toString()));
+        widget.loadedMovieCards.add(MovieCard(movies[i]['title'].toString()));
+      }
+    });
+  }
+}
+
+class MovieCard extends StatelessWidget {
+  MovieCard(this.movieName);
+  String movieName = "";
+  int pairIndex = -1;
+
+  @override
+  Widget build(BuildContext context) {
+    return new Card(
+      child: ElevatedButton(
+        child: Text(movieName),
+        onPressed: () {},
       ),
     );
   }
