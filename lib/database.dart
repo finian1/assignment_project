@@ -58,8 +58,8 @@ class DatabaseHelper {
   }
 
   static Future<void> createTables() async {
-    Database db = await openDatabase(
-        join(await getDatabasesPath(), "movie_groups_database.db"));
+    //Database db = await openDatabase(
+    //    join(await getDatabasesPath(), "movie_groups_database.db"));
     await addNewMovie(0, false);
     await addNewMovie(1, false);
     await addNewMovie(2, false);

@@ -1,5 +1,4 @@
-import 'dart:ui';
-
+import 'package:assignment_project/addgroup.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'dart:async';
@@ -39,7 +38,7 @@ class _MainMenuPageState extends State<MainMenuPage> {
   CarouselController movieGroupsController = CarouselController();
   List<MovieGroupData> groupData = [];
 
-  List<MovieGroup>? movieGroups;
+  List<MovieGroup> movieGroups = [];
   bool dataGrabbed = false;
 
   @override
@@ -103,6 +102,60 @@ class _MainMenuPageState extends State<MainMenuPage> {
                 ElevatedButton(
                   onPressed: () {},
                   child: const Text('Profile'),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(
+            height: 200,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                //Remove group button
+                ElevatedButton.icon(
+                  icon: const Icon(
+                    Icons.remove_circle_outline,
+                    color: Color.fromARGB(255, 255, 255, 255),
+                    size: 80,
+                  ),
+                  onPressed: () {},
+                  label: const Text(""),
+                  style: ElevatedButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(50.0),
+                    ),
+                    fixedSize: const Size(100, 100),
+                    padding: EdgeInsets.only(left: 10.0),
+                    backgroundColor: Color.fromARGB(255, 0, 255, 242),
+                  ),
+                ),
+                SizedBox(width: 50),
+                //Add group button
+                ElevatedButton.icon(
+                  icon: const Icon(
+                    Icons.add_circle_outline,
+                    size: 80,
+                    color: Color.fromARGB(255, 255, 255, 255),
+                  ),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => AddGroupPage(
+                          title: 'Add Group',
+                        ),
+                      ),
+                    );
+                  },
+                  label: const Text(""),
+                  style: ElevatedButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(50.0),
+                    ),
+                    fixedSize: const Size(100, 100),
+                    padding: EdgeInsets.only(left: 10.0),
+                    backgroundColor: Color.fromARGB(255, 0, 255, 242),
+                  ),
                 ),
               ],
             ),

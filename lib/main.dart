@@ -5,6 +5,7 @@ import 'package:tmdb_api/tmdb_api.dart';
 import 'signup.dart';
 import 'mainmenu.dart';
 import 'database.dart';
+import 'addgroup.dart';
 import 'dart:io';
 
 void main() async {
@@ -33,6 +34,7 @@ class MyApp extends StatelessWidget {
         '/MainMenu': (context) => MainMenuPage(
               title: 'Main Menu',
             ),
+        '/AddGroup': (context) => AddGroupPage(title: 'Add Group')
       },
     );
   }
