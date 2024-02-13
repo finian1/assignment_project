@@ -14,6 +14,7 @@ class AddGroupPage extends StatefulWidget {
   final String title;
   final loadedMoviePairs = <MoviePair>[];
   final loadedMovieCards = <MovieCard>[];
+  final selectedMovies = <MoviePair>[];
   @override
   State<AddGroupPage> createState() => _AddGroupPageState();
 }
@@ -22,9 +23,9 @@ class _AddGroupPageState extends State<AddGroupPage> {
   _AddGroupPageState();
 
   TextEditingController searchController = TextEditingController();
-
   @override
   void initState() {}
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -69,13 +70,14 @@ class _AddGroupPageState extends State<AddGroupPage> {
               ],
             ),
           ),
+          //Found items from search
           SizedBox(
             width: double.infinity,
             height: 500,
             child: ListView.builder(
               itemCount: widget.loadedMovieCards.length,
               itemBuilder: (context, index) {
-                return MovieCard(widget.loadedMoviePairs[index].name);
+                return widget.loadedMovieCards[index];
               },
             ),
           ),
@@ -85,14 +87,11 @@ class _AddGroupPageState extends State<AddGroupPage> {
             child: Container(
               decoration:
                   BoxDecoration(color: Color.fromARGB(255, 186, 241, 255)),
-              child: Column(
-                children: [
-                  Text("Selected1"),
-                  Text("Selected2"),
-                  Text("Selected3"),
-                  Text("Selected4"),
-                  Text("Selected5"),
-                ],
+              child: ListView.builder(
+                itemCount: widget.selectedMovies.length,
+                itemBuilder: (context, index) {
+                  return Text(widget.selectedMovies[index].name);
+                },
               ),
             ),
           ),
@@ -122,6 +121,14 @@ class _AddGroupPageState extends State<AddGroupPage> {
     );
   }
 
+  void movieSelected(int pairIndex) {
+    if (widget.selectedMovies.length < 5) {
+      setState(() {
+        widget.selectedMovies.add(widget.loadedMoviePairs[pairIndex]);
+      });
+    }
+  }
+
   Future<void> searchMovies(String searchTerm) async {
     List<dynamic> movies = await DatabaseHelper.searchForMovies(searchTerm);
     setState(() {
@@ -129,23 +136,40 @@ class _AddGroupPageState extends State<AddGroupPage> {
       widget.loadedMoviePairs.clear();
       for (int i = 0; i < movies.length; i++) {
         widget.loadedMoviePairs.add(MoviePair(
-            movies[i]['title'].toString(), movies[i]['id'].toString()));
-        widget.loadedMovieCards.add(MovieCard(movies[i]['title'].toString()));
+            movies[i]['original_title'].toString(),
+            movies[i]['id'].toString()));
+        widget.loadedMovieCards.add(MovieCard(
+            movies[i]['original_title'].toString(), i, movieSelected));
       }
     });
   }
 }
 
 class MovieCard extends StatelessWidget {
-  MovieCard(this.movieName);
+  MovieCard(this.movieName, this.pairIndex, this.movieSelected);
   String movieName = "";
   int pairIndex = -1;
+  final Function(int) movieSelected;
 
   @override
   Widget build(BuildContext context) {
-    return new Card(
+    return Card(
       child: ElevatedButton(
         child: Text(movieName),
+        onPressed: () {
+          movieSelected(pairIndex);
+        },
+      ),
+    );
+  }
+}
+
+class SelectedMovieCard extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: ElevatedButton(
+        child: Text("movieName"),
         onPressed: () {},
       ),
     );
