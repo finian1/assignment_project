@@ -73,7 +73,7 @@ class _AddGroupPageState extends State<AddGroupPage> {
           //Found items from search
           SizedBox(
             width: double.infinity,
-            height: 500,
+            height: 400,
             child: ListView.builder(
               itemCount: widget.loadedMovieCards.length,
               itemBuilder: (context, index) {
@@ -81,23 +81,29 @@ class _AddGroupPageState extends State<AddGroupPage> {
               },
             ),
           ),
+          const SizedBox(
+            height: 10,
+          ),
           SizedBox(
             width: double.infinity,
-            height: 100,
+            height: 200,
             child: Container(
               decoration:
                   BoxDecoration(color: Color.fromARGB(255, 186, 241, 255)),
               child: ListView.builder(
                 itemCount: widget.selectedMovies.length,
                 itemBuilder: (context, index) {
-                  return Text(widget.selectedMovies[index].name);
+                  return SizedBox(
+                    height: 200 / 5,
+                    child: SelectedMovieCard(widget.selectedMovies[index]),
+                  );
                 },
               ),
             ),
           ),
           SizedBox(
             width: double.infinity,
-            height: 100,
+            height: 50,
             child: Container(
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -146,9 +152,9 @@ class _AddGroupPageState extends State<AddGroupPage> {
 }
 
 class MovieCard extends StatelessWidget {
-  MovieCard(this.movieName, this.pairIndex, this.movieSelected);
-  String movieName = "";
-  int pairIndex = -1;
+  const MovieCard(this.movieName, this.pairIndex, this.movieSelected);
+  final String movieName;
+  final int pairIndex;
   final Function(int) movieSelected;
 
   @override
@@ -165,11 +171,13 @@ class MovieCard extends StatelessWidget {
 }
 
 class SelectedMovieCard extends StatelessWidget {
+  SelectedMovieCard(this.pair);
+  final MoviePair pair;
   @override
   Widget build(BuildContext context) {
     return Card(
       child: ElevatedButton(
-        child: Text("movieName"),
+        child: Text(pair.name),
         onPressed: () {},
       ),
     );
