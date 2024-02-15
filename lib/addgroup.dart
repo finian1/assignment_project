@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:assignment_project/database.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
@@ -15,6 +17,7 @@ class AddGroupPage extends StatefulWidget {
   final loadedMoviePairs = <MoviePair>[];
   final loadedMovieCards = <MovieCard>[];
   final selectedMovies = <MoviePair>[];
+  bool validGroupSelected = false;
   @override
   State<AddGroupPage> createState() => _AddGroupPageState();
 }
@@ -95,7 +98,8 @@ class _AddGroupPageState extends State<AddGroupPage> {
                 itemBuilder: (context, index) {
                   return SizedBox(
                     height: 200 / 5,
-                    child: SelectedMovieCard(widget.selectedMovies[index]),
+                    child: SelectedMovieCard(
+                        widget.selectedMovies[index], removeSelectedMovie),
                   );
                 },
               ),
@@ -117,7 +121,14 @@ class _AddGroupPageState extends State<AddGroupPage> {
                     width: 50,
                     height: 100,
                   ),
-                  ElevatedButton(onPressed: () {}, child: Text("Create Group")),
+                  ElevatedButton(
+                    onPressed: widget.validGroupSelected
+                        ? () {
+                            addGroup();
+                          }
+                        : null,
+                    child: Text("Create Group"),
+                  ),
                 ],
               ),
             ),
@@ -129,11 +140,42 @@ class _AddGroupPageState extends State<AddGroupPage> {
 
   void movieSelected(int pairIndex) {
     if (widget.selectedMovies.length < 5) {
-      setState(() {
-        widget.selectedMovies.add(widget.loadedMoviePairs[pairIndex]);
-      });
+      bool alreadyAdded = false;
+      for (MoviePair pair in widget.selectedMovies) {
+        if (widget.loadedMoviePairs[pairIndex].id == pair.id) {
+          alreadyAdded = true;
+        }
+      }
+      if (!alreadyAdded) {
+        setState(() {
+          widget.selectedMovies.add(widget.loadedMoviePairs[pairIndex]);
+          if (widget.selectedMovies.length == 5) {
+            widget.validGroupSelected = true;
+          } else {
+            widget.validGroupSelected = false;
+          }
+        });
+      }
     }
   }
+
+  void removeSelectedMovie(String id) {
+    for (int i = 0; i < widget.selectedMovies.length; i++) {
+      if (widget.selectedMovies[i].id == id) {
+        setState(() {
+          widget.selectedMovies.removeAt(i);
+          if (widget.selectedMovies.length == 5) {
+            widget.validGroupSelected = true;
+          } else {
+            widget.validGroupSelected = false;
+          }
+        });
+        break;
+      }
+    }
+  }
+
+  void addGroup() {}
 
   Future<void> searchMovies(String searchTerm) async {
     List<dynamic> movies = await DatabaseHelper.searchForMovies(searchTerm);
@@ -171,14 +213,19 @@ class MovieCard extends StatelessWidget {
 }
 
 class SelectedMovieCard extends StatelessWidget {
-  SelectedMovieCard(this.pair);
+  SelectedMovieCard(this.pair, this.movieRemoved);
   final MoviePair pair;
+  final Function(String) movieRemoved;
   @override
   Widget build(BuildContext context) {
     return Card(
       child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+            backgroundColor: Color.fromARGB(255, 132, 255, 132)),
         child: Text(pair.name),
-        onPressed: () {},
+        onPressed: () {
+          movieRemoved(pair.id);
+        },
       ),
     );
   }
