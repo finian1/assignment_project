@@ -9,20 +9,6 @@ import 'dart:io';
 
 import 'database.dart';
 
-class MovieData {
-  MovieData({required this.movieID, required this.isCompleted});
-  bool isCompleted;
-  int movieID;
-}
-
-class MovieGroupData {
-  MovieGroupData(
-      {required this.id, required this.header, this.data = const []});
-  int id;
-  String header;
-  List<MovieData> data;
-}
-
 class MainMenuPage extends StatefulWidget {
   const MainMenuPage({super.key, required this.title});
   final String title;
@@ -215,7 +201,7 @@ class _MovieGroupState extends State<MovieGroup> {
         (index) => MovieCard(
               index: index,
               onMovieCompleted: onMovieChanged,
-              movieName: "",
+              movieId: widget.movieData[index].movieID,
               isCompleted: widget.movieData[index].isCompleted,
             ));
     return Column(
@@ -250,13 +236,14 @@ class _MovieGroupState extends State<MovieGroup> {
 class MovieCard extends StatefulWidget {
   MovieCard({
     super.key,
-    this.movieName = "N/A",
+    this.movieId = -1,
     required this.index,
     required this.onMovieCompleted,
     required this.isCompleted,
   });
 
-  String movieName;
+  int movieId;
+  String movieName = "";
   final int index;
   final Function(int, bool) onMovieCompleted;
   bool isCompleted;
@@ -271,7 +258,7 @@ class _MovieCardState extends State<MovieCard> {
   }
 
   Future<void> initName() async {
-    String name = await DatabaseHelper.getNameFromID('tt15009428');
+    String name = await DatabaseHelper.getNameFromID(widget.movieId);
     setState(() {
       widget.movieName = name;
     });
@@ -293,7 +280,10 @@ class _MovieCardState extends State<MovieCard> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(widget.movieName),
+            SizedBox(
+              width: 160,
+              child: Text(widget.movieName),
+            ),
             Theme(
               data: ThemeData(
                 checkboxTheme: CheckboxThemeData(

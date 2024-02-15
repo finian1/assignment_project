@@ -6,6 +6,20 @@ import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:tmdb_api/tmdb_api.dart';
 
+class MovieData {
+  MovieData({required this.movieID, required this.isCompleted});
+  bool isCompleted;
+  int movieID;
+}
+
+class MovieGroupData {
+  MovieGroupData(
+      {required this.id, required this.header, this.data = const []});
+  int id;
+  String header;
+  List<MovieData> data;
+}
+
 class DatabaseHelper {
   static Database? _database;
   static TMDB tmdb = TMDB(ApiKeys('1701c7dbb0e18d0bd9948fd6d5ae94d7',
@@ -14,10 +28,13 @@ class DatabaseHelper {
   static const String baseUrl = "https://api.themoviedb.org/3";
   static const String imageBaseUrl = "https://image.tmdb.org/t/p/w500";
 
-  static Future<String> getNameFromID(String id) async {
-    Map movie = await tmdb.v3.find.getById(id);
-
-    return movie['movie_results'][0]["title"] as String;
+  static Future<String> getNameFromID(int id) async {
+    Map movie = await tmdb.v3.movies.getDetails(id);
+    try {
+      return movie['title'] as String;
+    } catch (e) {
+      return "Error Finding Name";
+    }
   }
 
   static Future<List<dynamic>> searchForMovies(String name) async {
@@ -44,12 +61,12 @@ class DatabaseHelper {
       join(await getDatabasesPath(), "movie_groups_database.db"),
       onCreate: (db, version) {
         db.execute(
-          'CREATE TABLE movieGroups(id INTEGER PRIMARY KEY, groupName STRING, movie1 INTEGER, movie2 INTEGER, movie3 INTEGER, movie4 INTEGER, movie5 INTEGER)',
+          'CREATE TABLE movieGroups(id INTEGER PRIMARY KEY, groupName INTEGER, movie1 INTEGER, movie2 INTEGER, movie3 INTEGER, movie4 INTEGER, movie5 INTEGER)',
         );
         print("created movieGroup table");
 
         db.execute(
-          'CREATE TABLE movies(id INTEGER PRIMARY KEY, watched BIT)',
+          'CREATE TABLE movies(id STRING PRIMARY KEY, watched BIT)',
         );
         print("created movies table");
       },
@@ -66,16 +83,16 @@ class DatabaseHelper {
   static Future<void> createTables() async {
     //Database db = await openDatabase(
     //    join(await getDatabasesPath(), "movie_groups_database.db"));
-    await addNewMovie(0, false);
-    await addNewMovie(1, false);
-    await addNewMovie(2, false);
-    await addNewMovie(3, false);
-    await addNewMovie(4, false);
-    await addNewGroup(1, "test", [0, 1, 2, 3, 4]);
-    await addNewGroup(2, "hello", [2, 3, 1, 3, 4]);
+    //await addNewMovie(0, false);
+    //await addNewMovie(1, false);
+    //await addNewMovie(2, false);
+    //await addNewMovie(3, false);
+    //await addNewMovie(4, false);
+    //await addNewGroup(1, "test", [0, 1, 2, 3, 4]);
+    //await addNewGroup(2, "hello", [2, 3, 1, 3, 4]);
   }
 
-  static Future<void> addNewMovie(int uniqueID, bool watched) async {
+  static Future<void> addNewMovie(String uniqueID, bool watched) async {
     Database db = await openDatabase(
         join(await getDatabasesPath(), "movie_groups_database.db"));
     Map<String, dynamic> input = {'id': uniqueID, 'watched': watched};
@@ -87,14 +104,23 @@ class DatabaseHelper {
     print(success);
   }
 
-  static Future<void> addNewGroup(
-      int uniqueID, String header, List<int> movieIDs) async {
+  static Future<void> addNewGroup(String header, List<String> movieIDs) async {
     if (movieIDs.length < 5) {
       return;
     }
 
     Database db = await openDatabase(
         join(await getDatabasesPath(), "movie_groups_database.db"));
+    final List<Map<String, dynamic>> groupMaps = await db.query('movieGroups');
+    //List<Map> uniqueIDrow =
+    //await db.rawQuery('SELECT MAX(id) FROM movieGroups');
+    int uniqueID = groupMaps.length + 1;
+    //try {
+    //  uniqueID = uniqueIDrow[0]['id'] as int;
+    //} catch (e) {
+    //  uniqueID = -1;
+    //}
+    //uniqueID++;
     Map<String, dynamic> input = {
       'id': uniqueID,
       'groupName': header,
@@ -118,17 +144,41 @@ class DatabaseHelper {
         join(await getDatabasesPath(), "movie_groups_database.db"));
 
     final List<Map<String, dynamic>> groupMaps = await db.query('movieGroups');
-    final List<Map<String, dynamic>> movieMaps = await db.query('movies');
+    final movieMaps = <Map<String, dynamic>>[];
+    int movieID = -1;
+    for (int i = 0; i < groupMaps.length; i++) {
+      movieID = groupMaps[i]["movie1"] as int;
+      List<Map<String, dynamic>> movieMap =
+          await db.rawQuery('SELECT * FROM movies WHERE "id" = $movieID');
+      movieMaps.add(movieMap[0]);
+      movieID = groupMaps[i]["movie2"] as int;
+      movieMap =
+          await db.rawQuery('SELECT * FROM movies WHERE "id" = $movieID');
+      movieMaps.add(movieMap[0]);
+      movieID = groupMaps[i]["movie3"] as int;
+      movieMap =
+          await db.rawQuery('SELECT * FROM movies WHERE "id" = $movieID');
+      movieMaps.add(movieMap[0]);
+      movieID = groupMaps[i]["movie4"] as int;
+      movieMap =
+          await db.rawQuery('SELECT * FROM movies WHERE "id" = $movieID');
+      movieMaps.add(movieMap[0]);
+      movieID = groupMaps[i]["movie5"] as int;
+      movieMap =
+          await db.rawQuery('SELECT * FROM movies WHERE "id" = $movieID');
+      movieMaps.add(movieMap[0]);
+    }
+    //We need to go through
 
     return List.generate(
       groupMaps.length,
       (i) {
         final List<MovieData> movieDatas = [
-          generateMovieData(movieMaps[groupMaps[i]['movie1'] as int]),
-          generateMovieData(movieMaps[groupMaps[i]['movie2'] as int]),
-          generateMovieData(movieMaps[groupMaps[i]['movie3'] as int]),
-          generateMovieData(movieMaps[groupMaps[i]['movie4'] as int]),
-          generateMovieData(movieMaps[groupMaps[i]['movie5'] as int]),
+          generateMovieData(movieMaps[i * 5 + 0]),
+          generateMovieData(movieMaps[i * 5 + 1]),
+          generateMovieData(movieMaps[i * 5 + 2]),
+          generateMovieData(movieMaps[i * 5 + 3]),
+          generateMovieData(movieMaps[i * 5 + 4]),
         ];
 
         return MovieGroupData(

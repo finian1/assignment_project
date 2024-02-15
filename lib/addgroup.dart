@@ -125,6 +125,7 @@ class _AddGroupPageState extends State<AddGroupPage> {
                     onPressed: widget.validGroupSelected
                         ? () {
                             addGroup();
+                            Navigator.pop(context);
                           }
                         : null,
                     child: Text("Create Group"),
@@ -175,7 +176,18 @@ class _AddGroupPageState extends State<AddGroupPage> {
     }
   }
 
-  void addGroup() {}
+  Future<void> addGroup() async {
+    for (MoviePair pair in widget.selectedMovies) {
+      await DatabaseHelper.addNewMovie(pair.id, false);
+    }
+    await DatabaseHelper.addNewGroup("header", [
+      widget.selectedMovies[0].id,
+      widget.selectedMovies[1].id,
+      widget.selectedMovies[2].id,
+      widget.selectedMovies[3].id,
+      widget.selectedMovies[4].id,
+    ]);
+  }
 
   Future<void> searchMovies(String searchTerm) async {
     List<dynamic> movies = await DatabaseHelper.searchForMovies(searchTerm);
