@@ -27,7 +27,9 @@ class _AddGroupPageState extends State<AddGroupPage> {
 
   TextEditingController searchController = TextEditingController();
   @override
-  void initState() {}
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -125,7 +127,6 @@ class _AddGroupPageState extends State<AddGroupPage> {
                     onPressed: widget.validGroupSelected
                         ? () {
                             addGroup();
-                            Navigator.pop(context);
                           }
                         : null,
                     child: Text("Create Group"),
@@ -178,7 +179,7 @@ class _AddGroupPageState extends State<AddGroupPage> {
 
   Future<void> addGroup() async {
     for (MoviePair pair in widget.selectedMovies) {
-      await DatabaseHelper.addNewMovie(pair.id, false);
+      await DatabaseHelper.addNewMovie(pair.id, false, pair.name);
     }
     await DatabaseHelper.addNewGroup("header", [
       widget.selectedMovies[0].id,
@@ -187,6 +188,11 @@ class _AddGroupPageState extends State<AddGroupPage> {
       widget.selectedMovies[3].id,
       widget.selectedMovies[4].id,
     ]);
+    returnToMenu();
+  }
+
+  void returnToMenu() {
+    Navigator.pop(context);
   }
 
   Future<void> searchMovies(String searchTerm) async {
@@ -196,10 +202,9 @@ class _AddGroupPageState extends State<AddGroupPage> {
       widget.loadedMoviePairs.clear();
       for (int i = 0; i < movies.length; i++) {
         widget.loadedMoviePairs.add(MoviePair(
-            movies[i]['original_title'].toString(),
-            movies[i]['id'].toString()));
-        widget.loadedMovieCards.add(MovieCard(
-            movies[i]['original_title'].toString(), i, movieSelected));
+            movies[i]['title'].toString(), movies[i]['id'].toString()));
+        widget.loadedMovieCards
+            .add(MovieCard(movies[i]['title'].toString(), i, movieSelected));
       }
     });
   }

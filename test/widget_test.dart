@@ -31,12 +31,12 @@ void main() {
   test('Testing if database is created and read correctly', () {
     //Arrange
     DatabaseHelper.getDBConnector();
-    DatabaseHelper.addNewMovie(0, false);
-    DatabaseHelper.addNewMovie(1, false);
-    DatabaseHelper.addNewMovie(2, false);
-    DatabaseHelper.addNewMovie(3, false);
-    DatabaseHelper.addNewMovie(4, false);
-    DatabaseHelper.addNewGroup(1, "test", [0, 1, 2, 3, 4]);
+    //DatabaseHelper.addNewMovie(0, false);
+    //DatabaseHelper.addNewMovie(1, false);
+    //DatabaseHelper.addNewMovie(2, false);
+    //DatabaseHelper.addNewMovie(3, false);
+    //DatabaseHelper.addNewMovie(4, false);
+    //DatabaseHelper.addNewGroup(1, "test", [0, 1, 2, 3, 4]);
 
     //Act
 

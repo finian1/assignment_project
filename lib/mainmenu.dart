@@ -10,11 +10,13 @@ import 'dart:io';
 import 'database.dart';
 
 class MainMenuPage extends StatefulWidget {
-  const MainMenuPage({super.key, required this.title});
+  MainMenuPage({super.key, required this.title});
   final String title;
   @override
   Key? get key => const Key("MainMenu");
 
+  List<MovieGroupData> groupData = [];
+  List<MovieGroup> movieGroups = [];
   @override
   State<MainMenuPage> createState() => _MainMenuPageState();
 }
@@ -22,16 +24,13 @@ class MainMenuPage extends StatefulWidget {
 class _MainMenuPageState extends State<MainMenuPage> {
   _MainMenuPageState();
   CarouselController movieGroupsController = CarouselController();
-  List<MovieGroupData> groupData = [];
 
-  List<MovieGroup> movieGroups = [];
   bool dataGrabbed = false;
 
   @override
   void initState() {
     super.initState();
     initGroupData();
-    //while (!dataGrabbed) {}
   }
 
   @override
@@ -44,7 +43,7 @@ class _MainMenuPageState extends State<MainMenuPage> {
             width: double.infinity,
             height: 408,
             child: CarouselSlider(
-              items: movieGroups,
+              items: widget.movieGroups,
               carouselController: movieGroupsController,
               options: CarouselOptions(
                 initialPage: 1,
@@ -131,7 +130,10 @@ class _MainMenuPageState extends State<MainMenuPage> {
                           title: 'Add Group',
                         ),
                       ),
-                    );
+                    ).then((value) {
+                      widget.groupData = [];
+                      initGroupData();
+                    });
                   },
                   label: const Text(""),
                   style: ElevatedButton.styleFrom(
@@ -153,21 +155,21 @@ class _MainMenuPageState extends State<MainMenuPage> {
 
   void onMovieChanged(int groupIndex, int movieIndex, bool val) {
     setState(() {
-      groupData[groupIndex].data[movieIndex].isCompleted = val;
+      widget.groupData[groupIndex].data[movieIndex].isCompleted = val;
     });
   }
 
   Future<void> initGroupData() async {
     print("grabbing data");
-    groupData = await DatabaseHelper.getMovieGroups();
+    widget.groupData = await DatabaseHelper.getMovieGroups();
     setState(() {
-      movieGroups = List<MovieGroup>.generate(
-        groupData.length,
+      widget.movieGroups = List<MovieGroup>.generate(
+        widget.groupData.length,
         (index) => MovieGroup(
-          header: groupData[index].header,
+          header: widget.groupData[index].header,
           index: index,
           onMovieChanged: onMovieChanged,
-          movieData: groupData[index].data,
+          movieData: widget.groupData[index].data,
         ),
       );
       dataGrabbed = true;
@@ -203,6 +205,7 @@ class _MovieGroupState extends State<MovieGroup> {
               onMovieCompleted: onMovieChanged,
               movieId: widget.movieData[index].movieID,
               isCompleted: widget.movieData[index].isCompleted,
+              movieName: widget.movieData[index].movieName,
             ));
     return Column(
       children: [
@@ -237,13 +240,14 @@ class MovieCard extends StatefulWidget {
   MovieCard({
     super.key,
     this.movieId = -1,
+    required this.movieName,
     required this.index,
     required this.onMovieCompleted,
     required this.isCompleted,
   });
 
   int movieId;
-  String movieName = "";
+  String movieName;
   final int index;
   final Function(int, bool) onMovieCompleted;
   bool isCompleted;
@@ -253,17 +257,6 @@ class MovieCard extends StatefulWidget {
 
 class _MovieCardState extends State<MovieCard> {
   @override
-  void initState() {
-    initName();
-  }
-
-  Future<void> initName() async {
-    String name = await DatabaseHelper.getNameFromID(widget.movieId);
-    setState(() {
-      widget.movieName = name;
-    });
-  }
-
   Widget build(BuildContext context) {
     return Container(
       width: 190,

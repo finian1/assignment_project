@@ -7,9 +7,13 @@ import 'package:sqflite/sqflite.dart';
 import 'package:tmdb_api/tmdb_api.dart';
 
 class MovieData {
-  MovieData({required this.movieID, required this.isCompleted});
+  MovieData(
+      {required this.movieID,
+      required this.isCompleted,
+      required this.movieName});
   bool isCompleted;
   int movieID;
+  String movieName;
 }
 
 class MovieGroupData {
@@ -66,7 +70,7 @@ class DatabaseHelper {
         print("created movieGroup table");
 
         db.execute(
-          'CREATE TABLE movies(id STRING PRIMARY KEY, watched BIT)',
+          'CREATE TABLE movies(id STRING PRIMARY KEY, watched BIT, title STRING)',
         );
         print("created movies table");
       },
@@ -92,10 +96,15 @@ class DatabaseHelper {
     //await addNewGroup(2, "hello", [2, 3, 1, 3, 4]);
   }
 
-  static Future<void> addNewMovie(String uniqueID, bool watched) async {
+  static Future<void> addNewMovie(
+      String uniqueID, bool watched, String title) async {
     Database db = await openDatabase(
         join(await getDatabasesPath(), "movie_groups_database.db"));
-    Map<String, dynamic> input = {'id': uniqueID, 'watched': watched};
+    Map<String, dynamic> input = {
+      'id': uniqueID,
+      'watched': watched,
+      'title': title
+    };
     int success = await db.insert(
       'movies',
       input,
@@ -193,6 +202,7 @@ class DatabaseHelper {
   static MovieData generateMovieData(Map<String, dynamic> movieMap) {
     return MovieData(
         movieID: movieMap['id'] as int,
-        isCompleted: movieMap['watched'] == 0 ? false : true);
+        isCompleted: movieMap['watched'] == 0 ? false : true,
+        movieName: movieMap['title'] as String);
   }
 }
