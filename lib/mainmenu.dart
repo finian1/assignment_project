@@ -35,7 +35,6 @@ class _MainMenuPageState extends State<MainMenuPage> {
 
   @override
   Widget build(BuildContext context) {
-    print("Buildin");
     return Scaffold(
       body: ListView(
         children: [
@@ -123,6 +122,7 @@ class _MainMenuPageState extends State<MainMenuPage> {
                     color: Color.fromARGB(255, 255, 255, 255),
                   ),
                   onPressed: () {
+                    DatabaseHelper.updateMovieData(widget.groupData);
                     Navigator.push(
                       context,
                       MaterialPageRoute(

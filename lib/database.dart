@@ -199,6 +199,21 @@ class DatabaseHelper {
     );
   }
 
+  static Future<void> updateMovieData(List<MovieGroupData> data) async {
+    Database db = await openDatabase(
+        join(await getDatabasesPath(), "movie_groups_database.db"));
+
+    for (MovieGroupData groupData in data) {
+      for (MovieData movieData in groupData.data) {
+        Map<String, dynamic> input = {
+          'watched': movieData.isCompleted,
+        };
+        int movieID = movieData.movieID;
+        db.update("movies", input, where: "id = ?", whereArgs: [movieID]);
+      }
+    }
+  }
+
   static MovieData generateMovieData(Map<String, dynamic> movieMap) {
     return MovieData(
         movieID: movieMap['id'] as int,
