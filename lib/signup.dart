@@ -1,3 +1,4 @@
+import 'package:assignment_project/database.dart';
 import 'package:flutter/material.dart';
 
 class SignUpPage extends StatefulWidget {
@@ -62,7 +63,9 @@ class _SignUpPageState extends State<SignUpPage> {
                   Container(
                     child: ElevatedButton(
                       child: const Text('Sign Up'),
-                      onPressed: () {},
+                      onPressed: () {
+                        addNewUser();
+                      },
                     ),
                   ),
                 ],
@@ -82,5 +85,20 @@ class _SignUpPageState extends State<SignUpPage> {
         ),
       ),
     );
+  }
+
+  Future<void> addNewUser() async {
+    int result = await DatabaseHelper.addNewUser(
+        usernameController.text, passwordController.text);
+    if (result == -1) {
+      //Error, user already exists
+    }
+    if (result == 1) {
+      returnToLoginMenu();
+    }
+  }
+
+  void returnToLoginMenu() {
+    Navigator.pop(context);
   }
 }

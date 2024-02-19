@@ -104,20 +104,55 @@ class _SignInPageState extends State<SignInPage> {
                 ElevatedButton(
                   //Log in button
                   onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => MainMenuPage(
-                          title: 'Main Menu',
-                        ),
-                      ),
-                    );
+                    attemptLogin();
                   },
                   child: const Text('Log In'),
                 ),
               ],
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> attemptLogin() async {
+    int loginResult = await DatabaseHelper.attemptLogin(
+        usernameController.text, passwordController.text);
+    if (loginResult == -1) {
+      displayLoginError();
+    } else if (loginResult == 1) {
+      login();
+    }
+  }
+
+  void displayLoginError() {
+    showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Error"),
+          content: const Text("Wrong username or password."),
+          actions: [
+            TextButton(
+              child: const Text('Ok'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            )
+          ],
+        );
+      },
+    );
+  }
+
+  void login() {
+    DatabaseHelper.currentUser = usernameController.text;
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => MainMenuPage(
+          title: 'Main Menu',
         ),
       ),
     );

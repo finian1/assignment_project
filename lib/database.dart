@@ -31,7 +31,7 @@ class DatabaseHelper {
 
   static const String baseUrl = "https://api.themoviedb.org/3";
   static const String imageBaseUrl = "https://image.tmdb.org/t/p/w500";
-
+  static String currentUser = "";
   static Future<String> getNameFromID(int id) async {
     Map movie = await tmdb.v3.movies.getDetails(id);
     try {
@@ -65,14 +65,13 @@ class DatabaseHelper {
       join(await getDatabasesPath(), "movie_groups_database.db"),
       onCreate: (db, version) {
         db.execute(
-          'CREATE TABLE movieGroups(id INTEGER PRIMARY KEY, groupName INTEGER, movie1 INTEGER, movie2 INTEGER, movie3 INTEGER, movie4 INTEGER, movie5 INTEGER)',
-        );
-        print("created movieGroup table");
+            'CREATE TABLE movieGroups(id INTEGER PRIMARY KEY, groupName INTEGER, movie1 INTEGER, movie2 INTEGER, movie3 INTEGER, movie4 INTEGER, movie5 INTEGER, user STRING)');
 
         db.execute(
-          'CREATE TABLE movies(id STRING PRIMARY KEY, watched BIT, title STRING)',
-        );
-        print("created movies table");
+            'CREATE TABLE movies(id STRING PRIMARY KEY, watched BIT, title STRING)');
+
+        db.execute(
+            'CREATE TABLE users(username STRING PRIMARY KEY, password STRING, xpValue INTEGER, level INTEGER)');
       },
       version: 1,
     );
@@ -82,6 +81,45 @@ class DatabaseHelper {
       print("DB init succesful");
     }
     return _database;
+  }
+
+  static Future<int> addNewUser(String username, String password) async {
+    Database db = await openDatabase(
+        join(await getDatabasesPath(), "movie_groups_database.db"));
+    var checkResult =
+        await db.rawQuery('SELECT * FROM users WHERE username = "$username"');
+    if (checkResult.isNotEmpty) {
+      //If user already exists...
+      return -1;
+    }
+    Map<String, dynamic> user = {
+      'username': username,
+      'password': password,
+      'xpValue': 0,
+      'level': 1
+    };
+    await db.insert('users', user);
+    return 1;
+  }
+
+  static Future<int> attemptLogin(String username, String password) async {
+    Database db = await openDatabase(
+        join(await getDatabasesPath(), "movie_groups_database.db"));
+    List<Map<String, dynamic>> checkResult;
+    try {
+      checkResult =
+          await db.rawQuery('SELECT * FROM users WHERE username = "$username"');
+    } catch (e) {
+      return -1;
+    }
+    if (checkResult.isEmpty) {
+      return -1;
+    }
+    Map userMap = checkResult[0];
+    if (userMap['password'] == password) {
+      return 1;
+    }
+    return -1;
   }
 
   static Future<void> createTables() async {
