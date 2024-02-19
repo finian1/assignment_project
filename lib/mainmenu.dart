@@ -17,6 +17,8 @@ class MainMenuPage extends StatefulWidget {
 
   List<MovieGroupData> groupData = [];
   List<MovieGroup> movieGroups = [];
+
+  double levelUpPercent = 0.0;
   @override
   State<MainMenuPage> createState() => _MainMenuPageState();
 }
@@ -25,7 +27,7 @@ class _MainMenuPageState extends State<MainMenuPage> {
   _MainMenuPageState();
   CarouselController movieGroupsController = CarouselController();
 
-  bool dataGrabbed = false;
+  int _currentIndex = 0;
 
   @override
   void initState() {
@@ -45,14 +47,17 @@ class _MainMenuPageState extends State<MainMenuPage> {
               items: widget.movieGroups,
               carouselController: movieGroupsController,
               options: CarouselOptions(
-                initialPage: 1,
+                initialPage: 0,
                 viewportFraction: 0.5,
                 disableCenter: true,
                 enlargeCenterPage: true,
                 enlargeFactor: 0.25,
-                enableInfiniteScroll: true,
+                enableInfiniteScroll: false,
                 scrollDirection: Axis.horizontal,
                 autoPlay: false,
+                onPageChanged: (index, reason) {
+                  _currentIndex = index;
+                },
               ),
             ),
           ),
@@ -77,14 +82,22 @@ class _MainMenuPageState extends State<MainMenuPage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text('Level: 5\nXP: 929'),
-                    Slider(
-                      value: 0.5,
-                      onChanged: (val) {},
-                    )
+                    SliderTheme(
+                      child: Slider(
+                        value: widget.levelUpPercent,
+                        onChanged: (val) {},
+                      ),
+                      data: SliderTheme.of(context).copyWith(
+                          thumbColor: Colors.transparent,
+                          thumbShape: const RoundSliderThumbShape(
+                              enabledThumbRadius: 0.0)),
+                    ),
                   ],
                 ),
                 ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    testSliders();
+                  },
                   child: const Text('Profile'),
                 ),
               ],
@@ -102,7 +115,13 @@ class _MainMenuPageState extends State<MainMenuPage> {
                     color: Color.fromARGB(255, 255, 255, 255),
                     size: 80,
                   ),
-                  onPressed: () {},
+                  onPressed: () {
+                    if (widget.groupData.isNotEmpty) {
+                      DatabaseHelper.removeGroup(
+                          widget.groupData[_currentIndex].id);
+                      initGroupData();
+                    }
+                  },
                   label: const Text(""),
                   style: ElevatedButton.styleFrom(
                     shape: RoundedRectangleBorder(
@@ -172,9 +191,22 @@ class _MainMenuPageState extends State<MainMenuPage> {
           movieData: widget.groupData[index].data,
         ),
       );
-      dataGrabbed = true;
     });
+    if (_currentIndex > widget.groupData.length - 1 &&
+        widget.groupData.isNotEmpty) {
+      _currentIndex = widget.groupData.length - 1;
+    }
     print("Data grabbed");
+  }
+
+  Future<void> testSliders() async {
+    for (int i = 0; i < 10000; i++) {
+      await Future.delayed(const Duration(milliseconds: 10));
+      setState(() {
+        widget.levelUpPercent += 0.1;
+        widget.levelUpPercent %= 1.0;
+      });
+    }
   }
 }
 
@@ -190,6 +222,8 @@ class MovieGroup extends StatefulWidget {
   final int index;
   final Function(int, int, bool) onMovieChanged;
   final List<MovieData> movieData;
+  int numMoviesCompleted = 0;
+  double percentMoviesCompleted = 0.0;
   @override
   State<MovieGroup> createState() => _MovieGroupState();
 }
@@ -198,15 +232,23 @@ class _MovieGroupState extends State<MovieGroup> {
   List<MovieCard> movies = [];
   @override
   Widget build(BuildContext context) {
-    movies = List<MovieCard>.generate(
-        widget.movieData.length,
-        (index) => MovieCard(
-              index: index,
-              onMovieCompleted: onMovieChanged,
-              movieId: widget.movieData[index].movieID,
-              isCompleted: widget.movieData[index].isCompleted,
-              movieName: widget.movieData[index].movieName,
-            ));
+    widget.numMoviesCompleted = 0;
+    movies = List<MovieCard>.generate(widget.movieData.length, (index) {
+      setState(() {
+        if (widget.movieData[index].isCompleted) {
+          widget.numMoviesCompleted++;
+        }
+        widget.percentMoviesCompleted =
+            widget.numMoviesCompleted.toDouble() / 5.0;
+      });
+      return MovieCard(
+        index: index,
+        onMovieCompleted: onMovieChanged,
+        movieId: widget.movieData[index].movieID,
+        isCompleted: widget.movieData[index].isCompleted,
+        movieName: widget.movieData[index].movieName,
+      );
+    });
     return Column(
       children: [
         Text(widget.header),
@@ -222,15 +264,29 @@ class _MovieGroupState extends State<MovieGroup> {
         Text(
           'Completion %',
         ),
-        Slider(
-          value: 0.5,
-          onChanged: (val) {},
+        SliderTheme(
+          child: Slider(
+            value: widget.percentMoviesCompleted,
+            onChanged: (val) {},
+          ),
+          data: SliderTheme.of(context).copyWith(
+              thumbColor: Colors.transparent,
+              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 0.0)),
         ),
       ],
     );
   }
 
   void onMovieChanged(int index, bool val) {
+    setState(() {
+      if (val) {
+        widget.numMoviesCompleted++;
+      } else {
+        widget.numMoviesCompleted--;
+      }
+      widget.percentMoviesCompleted =
+          widget.numMoviesCompleted.toDouble() / 5.0;
+    });
     widget.onMovieChanged(widget.index, index, val);
   }
 }

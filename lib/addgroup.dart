@@ -59,6 +59,10 @@ class _AddGroupPageState extends State<AddGroupPage> {
                   height: 90,
                   child: TextFormField(
                     controller: searchController,
+                    textInputAction: TextInputAction.search,
+                    onFieldSubmitted: (value) {
+                      searchMovies(searchController.text);
+                    },
                     decoration: const InputDecoration(
                       labelText: 'Search...',
                     ),
@@ -69,6 +73,7 @@ class _AddGroupPageState extends State<AddGroupPage> {
                   icon: const Icon(Icons.search),
                   label: const Text(""),
                   onPressed: () {
+                    FocusManager.instance.primaryFocus?.unfocus();
                     searchMovies(searchController.text);
                   },
                 ),

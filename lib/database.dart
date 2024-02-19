@@ -199,6 +199,13 @@ class DatabaseHelper {
     );
   }
 
+  static Future<void> removeGroup(int id) async {
+    Database db = await openDatabase(
+        join(await getDatabasesPath(), "movie_groups_database.db"));
+
+    db.rawDelete('DELETE FROM movieGroups WHERE id = ?', [id]);
+  }
+
   static Future<void> updateMovieData(List<MovieGroupData> data) async {
     Database db = await openDatabase(
         join(await getDatabasesPath(), "movie_groups_database.db"));
