@@ -40,27 +40,7 @@ class _MainMenuPageState extends State<MainMenuPage> {
     return Scaffold(
       body: ListView(
         children: [
-          SizedBox(
-            width: double.infinity,
-            height: 408,
-            child: CarouselSlider(
-              items: widget.movieGroups,
-              carouselController: movieGroupsController,
-              options: CarouselOptions(
-                initialPage: 0,
-                viewportFraction: 0.5,
-                disableCenter: true,
-                enlargeCenterPage: true,
-                enlargeFactor: 0.25,
-                enableInfiniteScroll: false,
-                scrollDirection: Axis.horizontal,
-                autoPlay: false,
-                onPageChanged: (index, reason) {
-                  _currentIndex = index;
-                },
-              ),
-            ),
-          ),
+          //Profile box
           SizedBox(
             height: 201,
             child: Row(
@@ -96,11 +76,32 @@ class _MainMenuPageState extends State<MainMenuPage> {
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    testSliders();
+                    
                   },
                   child: const Text('Profile'),
                 ),
               ],
+            ),
+          ),
+          SizedBox(
+            width: double.infinity,
+            height: 408,
+            child: CarouselSlider(
+              items: widget.movieGroups,
+              carouselController: movieGroupsController,
+              options: CarouselOptions(
+                initialPage: 0,
+                viewportFraction: 0.5,
+                disableCenter: true,
+                enlargeCenterPage: true,
+                enlargeFactor: 0.25,
+                enableInfiniteScroll: false,
+                scrollDirection: Axis.horizontal,
+                autoPlay: false,
+                onPageChanged: (index, reason) {
+                  _currentIndex = index;
+                },
+              ),
             ),
           ),
           SizedBox(
@@ -176,6 +177,7 @@ class _MainMenuPageState extends State<MainMenuPage> {
     setState(() {
       widget.groupData[groupIndex].data[movieIndex].isCompleted = val;
     });
+    DatabaseHelper.updateMovieData(widget.groupData);
   }
 
   Future<void> initGroupData() async {

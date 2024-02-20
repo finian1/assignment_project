@@ -36,9 +36,9 @@ class _AddGroupPageState extends State<AddGroupPage> {
     return Scaffold(
       body: ListView(
         children: [
-          const SizedBox(
+          SizedBox(
             width: double.infinity,
-            height: 50,
+            height: MediaQuery.of(context).size.height * 0.05,
             child: Text(
               "Add Group",
               textAlign: TextAlign.center,
@@ -83,7 +83,7 @@ class _AddGroupPageState extends State<AddGroupPage> {
           //Found items from search
           SizedBox(
             width: double.infinity,
-            height: 400,
+            height: MediaQuery.of(context).size.height * 0.4,
             child: ListView.builder(
               itemCount: widget.loadedMovieCards.length,
               itemBuilder: (context, index) {
@@ -91,12 +91,12 @@ class _AddGroupPageState extends State<AddGroupPage> {
               },
             ),
           ),
-          const SizedBox(
-            height: 10,
+          SizedBox(
+            height: MediaQuery.of(context).size.height * 0.01,
           ),
           SizedBox(
             width: double.infinity,
-            height: 200,
+            height: MediaQuery.of(context).size.height * 0.3,
             child: Container(
               decoration:
                   BoxDecoration(color: Color.fromARGB(255, 186, 241, 255)),
@@ -104,7 +104,7 @@ class _AddGroupPageState extends State<AddGroupPage> {
                 itemCount: widget.selectedMovies.length,
                 itemBuilder: (context, index) {
                   return SizedBox(
-                    height: 200 / 5,
+                    height: MediaQuery.of(context).size.height * 0.06,
                     child: SelectedMovieCard(
                         widget.selectedMovies[index], removeSelectedMovie),
                   );
@@ -114,7 +114,7 @@ class _AddGroupPageState extends State<AddGroupPage> {
           ),
           SizedBox(
             width: double.infinity,
-            height: 50,
+            height: MediaQuery.of(context).size.height * 0.08,
             child: Container(
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,

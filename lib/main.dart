@@ -90,6 +90,8 @@ class _SignInPageState extends State<SignInPage> {
                 ElevatedButton(
                   //Sign up button
                   onPressed: () {
+                    passwordController.clear();
+                    usernameController.clear();
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -148,6 +150,8 @@ class _SignInPageState extends State<SignInPage> {
 
   void login() {
     DatabaseHelper.currentUser = usernameController.text;
+    passwordController.clear();
+    usernameController.clear();
     Navigator.push(
       context,
       MaterialPageRoute(
