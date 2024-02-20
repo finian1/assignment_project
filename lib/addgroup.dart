@@ -4,6 +4,7 @@ import 'package:assignment_project/database.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'dart:async';
+import 'package:connectivity_plus/connectivity_plus.dart';
 
 class MoviePair {
   MoviePair(this.name, this.id);
@@ -201,6 +202,28 @@ class _AddGroupPageState extends State<AddGroupPage> {
   }
 
   Future<void> searchMovies(String searchTerm) async {
+    final connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult == ConnectivityResult.none) {
+      showDialog<void>(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text("Error"),
+            content: const Text("No internet connection."),
+            actions: [
+              TextButton(
+                child: const Text('Ok'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              )
+            ],
+          );
+        },
+      );
+      return;
+    }
+
     List<dynamic> movies = await DatabaseHelper.searchForMovies(searchTerm);
     setState(() {
       widget.loadedMovieCards.clear();

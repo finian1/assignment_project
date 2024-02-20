@@ -1,3 +1,4 @@
+import 'package:assignment_project/profile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:sqflite/sqflite.dart';
@@ -6,6 +7,7 @@ import 'signup.dart';
 import 'mainmenu.dart';
 import 'database.dart';
 import 'addgroup.dart';
+import 'profile.dart';
 import 'dart:io';
 
 void main() async {
@@ -34,7 +36,8 @@ class MyApp extends StatelessWidget {
         '/MainMenu': (context) => MainMenuPage(
               title: 'Main Menu',
             ),
-        '/AddGroup': (context) => AddGroupPage(title: 'Add Group')
+        '/AddGroup': (context) => AddGroupPage(title: 'Add Group'),
+        '/Profile': (context) => ProfilePage(title: 'Profile'),
       },
     );
   }
@@ -67,6 +70,12 @@ class _SignInPageState extends State<SignInPage> {
                 width: double.infinity,
                 height: 200,
                 fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  return Container(
+                    height: 200,
+                    color: const Color.fromARGB(255, 59, 255, 157),
+                  );
+                },
               ),
             ),
             const Text(

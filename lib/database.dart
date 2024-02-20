@@ -1,7 +1,6 @@
 import 'dart:async';
-
+import 'package:flutter/material.dart';
 import 'package:assignment_project/mainmenu.dart';
-import 'package:flutter/widgets.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:tmdb_api/tmdb_api.dart';

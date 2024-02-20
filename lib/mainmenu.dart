@@ -8,6 +8,7 @@ import 'package:tmdb_api/tmdb_api.dart';
 import 'dart:io';
 
 import 'database.dart';
+import 'profile.dart';
 
 class MainMenuPage extends StatefulWidget {
   MainMenuPage({super.key, required this.title});
@@ -42,7 +43,7 @@ class _MainMenuPageState extends State<MainMenuPage> {
         children: [
           //Profile box
           SizedBox(
-            height: 201,
+            height: MediaQuery.of(context).size.height * 0.2,
             child: Row(
               children: [
                 Align(
@@ -54,6 +55,13 @@ class _MainMenuPageState extends State<MainMenuPage> {
                       width: 100,
                       height: 100,
                       fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          width: 100,
+                          height: 100,
+                          color: const Color.fromARGB(255, 59, 255, 157),
+                        );
+                      },
                     ),
                   ),
                 ),
@@ -74,18 +82,12 @@ class _MainMenuPageState extends State<MainMenuPage> {
                     ),
                   ],
                 ),
-                ElevatedButton(
-                  onPressed: () {
-                    
-                  },
-                  child: const Text('Profile'),
-                ),
               ],
             ),
           ),
           SizedBox(
             width: double.infinity,
-            height: 408,
+            height: MediaQuery.of(context).size.height * 0.55,
             child: CarouselSlider(
               items: widget.movieGroups,
               carouselController: movieGroupsController,
@@ -105,65 +107,82 @@ class _MainMenuPageState extends State<MainMenuPage> {
             ),
           ),
           SizedBox(
-            height: 200,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+            height: MediaQuery.of(context).size.height * 0.3,
+            child: Column(
               children: [
-                //Remove group button
-                ElevatedButton.icon(
-                  icon: const Icon(
-                    Icons.remove_circle_outline,
-                    color: Color.fromARGB(255, 255, 255, 255),
-                    size: 80,
-                  ),
-                  onPressed: () {
-                    if (widget.groupData.isNotEmpty) {
-                      DatabaseHelper.removeGroup(
-                          widget.groupData[_currentIndex].id);
-                      initGroupData();
-                    }
-                  },
-                  label: const Text(""),
-                  style: ElevatedButton.styleFrom(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(50.0),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    //Remove group button
+                    ElevatedButton.icon(
+                      icon: const Icon(
+                        Icons.remove_circle_outline,
+                        color: Color.fromARGB(255, 255, 255, 255),
+                        size: 80,
+                      ),
+                      onPressed: () {
+                        if (widget.groupData.isNotEmpty) {
+                          DatabaseHelper.removeGroup(
+                              widget.groupData[_currentIndex].id);
+                          initGroupData();
+                        }
+                      },
+                      label: const Text(""),
+                      style: ElevatedButton.styleFrom(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(50.0),
+                        ),
+                        fixedSize: const Size(100, 100),
+                        padding: EdgeInsets.only(left: 10.0),
+                        backgroundColor: Color.fromARGB(255, 0, 255, 242),
+                      ),
                     ),
-                    fixedSize: const Size(100, 100),
-                    padding: EdgeInsets.only(left: 10.0),
-                    backgroundColor: Color.fromARGB(255, 0, 255, 242),
-                  ),
+                    SizedBox(width: 50),
+                    //Add group button
+                    ElevatedButton.icon(
+                      icon: const Icon(
+                        Icons.add_circle_outline,
+                        size: 80,
+                        color: Color.fromARGB(255, 255, 255, 255),
+                      ),
+                      onPressed: () {
+                        DatabaseHelper.updateMovieData(widget.groupData);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => AddGroupPage(
+                              title: 'Add Group',
+                            ),
+                          ),
+                        ).then((value) {
+                          widget.groupData = [];
+                          initGroupData();
+                        });
+                      },
+                      label: const Text(""),
+                      style: ElevatedButton.styleFrom(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(50.0),
+                        ),
+                        fixedSize: const Size(100, 100),
+                        padding: EdgeInsets.only(left: 10.0),
+                        backgroundColor: Color.fromARGB(255, 0, 255, 242),
+                      ),
+                    ),
+                  ],
                 ),
-                SizedBox(width: 50),
-                //Add group button
-                ElevatedButton.icon(
-                  icon: const Icon(
-                    Icons.add_circle_outline,
-                    size: 80,
-                    color: Color.fromARGB(255, 255, 255, 255),
-                  ),
+                ElevatedButton(
                   onPressed: () {
-                    DatabaseHelper.updateMovieData(widget.groupData);
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => AddGroupPage(
-                          title: 'Add Group',
+                        builder: (context) => ProfilePage(
+                          title: 'Profile',
                         ),
                       ),
-                    ).then((value) {
-                      widget.groupData = [];
-                      initGroupData();
-                    });
+                    );
                   },
-                  label: const Text(""),
-                  style: ElevatedButton.styleFrom(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(50.0),
-                    ),
-                    fixedSize: const Size(100, 100),
-                    padding: EdgeInsets.only(left: 10.0),
-                    backgroundColor: Color.fromARGB(255, 0, 255, 242),
-                  ),
+                  child: const Text('Profile'),
                 ),
               ],
             ),
@@ -199,16 +218,6 @@ class _MainMenuPageState extends State<MainMenuPage> {
       _currentIndex = widget.groupData.length - 1;
     }
     print("Data grabbed");
-  }
-
-  Future<void> testSliders() async {
-    for (int i = 0; i < 10000; i++) {
-      await Future.delayed(const Duration(milliseconds: 10));
-      setState(() {
-        widget.levelUpPercent += 0.1;
-        widget.levelUpPercent %= 1.0;
-      });
-    }
   }
 }
 
