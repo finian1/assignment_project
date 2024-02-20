@@ -2,7 +2,6 @@ import 'dart:collection';
 
 import 'package:assignment_project/database.dart';
 import 'package:flutter/material.dart';
-import 'package:carousel_slider/carousel_slider.dart';
 import 'dart:async';
 import 'package:connectivity_plus/connectivity_plus.dart';
 
@@ -37,6 +36,7 @@ class _AddGroupPageState extends State<AddGroupPage> {
     return Scaffold(
       body: ListView(
         children: [
+          //Title text box
           SizedBox(
             width: double.infinity,
             height: MediaQuery.of(context).size.height * 0.05,
@@ -46,6 +46,7 @@ class _AddGroupPageState extends State<AddGroupPage> {
               style: TextStyle(fontSize: 30),
             ),
           ),
+          //Search bar
           SizedBox(
             width: double.infinity,
             height: 90,
