@@ -196,6 +196,14 @@ class _MainMenuPageState extends State<MainMenuPage> {
     setState(() {
       widget.groupData[groupIndex].data[movieIndex].isCompleted = val;
     });
+    if (val) {
+      DatabaseHelper.addWatchedMovie(
+          widget.groupData[groupIndex].data[movieIndex].movieID.toString(),
+          widget.groupData[groupIndex].data[movieIndex].movieName);
+    } else {
+      DatabaseHelper.removeWatchedMovie(
+          widget.groupData[groupIndex].data[movieIndex].movieID.toString());
+    }
     DatabaseHelper.updateMovieData(widget.groupData);
   }
 

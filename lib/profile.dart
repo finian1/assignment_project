@@ -1,5 +1,6 @@
 import 'package:assignment_project/database.dart';
 import 'package:flutter/material.dart';
+import 'package:tmdb_api/tmdb_api.dart';
 import 'dart:async';
 import 'mainmenu.dart';
 
@@ -11,6 +12,8 @@ class ProfilePage extends StatefulWidget {
   @override
   Key? get key => const Key("MainMenu");
 
+  List<Map<String, dynamic>> watchedMovies = [];
+  Map<String, dynamic> user = {};
   double levelUpPercent = 0.0;
   @override
   State<ProfilePage> createState() => _ProfilePageState();
@@ -20,9 +23,20 @@ class _ProfilePageState extends State<ProfilePage> {
   _ProfilePageState();
 
   @override
+  void initState() {
+    super.initState();
+    getWatchedMovies();
+    getUser();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    String currentName = DatabaseHelper.currentUser;
-    String currentLevel = 32.toString();
+    String currentName = "N/A";
+    String currentLevel = "N/A";
+    if (widget.user.isNotEmpty) {
+      currentName = DatabaseHelper.currentUser;
+      currentLevel = (widget.user['level'] as int).toString();
+    }
     return Scaffold(
       body: Column(
         children: [
@@ -83,5 +97,20 @@ class _ProfilePageState extends State<ProfilePage> {
         ],
       ),
     );
+  }
+
+  Future<void> getWatchedMovies() async {
+    List<Map<String, dynamic>> movies = await DatabaseHelper.getWatchedMovies();
+    setState(() {
+      widget.watchedMovies = movies;
+    });
+  }
+
+  Future<void> getUser() async {
+    Map<String, dynamic> user =
+        await DatabaseHelper.getUser(DatabaseHelper.currentUser);
+    setState(() {
+      widget.user = user;
+    });
   }
 }

@@ -65,12 +65,12 @@ class DatabaseHelper {
       onCreate: (db, version) {
         db.execute(
             'CREATE TABLE movieGroups(id INTEGER PRIMARY KEY, user STRING, groupName INTEGER, movie1 INTEGER, movie2 INTEGER, movie3 INTEGER, movie4 INTEGER, movie5 INTEGER)');
-
         db.execute(
             'CREATE TABLE movies(id STRING, user STRING, watched BIT, title STRING, PRIMARY KEY(id, user))');
-
         db.execute(
             'CREATE TABLE users(username STRING PRIMARY KEY, password STRING, xpValue INTEGER, level INTEGER)');
+        db.execute(
+            'CREATE TABLE watchedMovies(id STRING, user STRING, title STRING, PRIMARY KEY(id, user))');
       },
       version: 1,
     );
@@ -99,6 +99,14 @@ class DatabaseHelper {
     };
     await db.insert('users', user);
     return 1;
+  }
+
+  static Future<Map<String, dynamic>> getUser(String username) async {
+    Database db = await openDatabase(
+        join(await getDatabasesPath(), "movie_groups_database.db"));
+    final result =
+        await db.query("users", where: "username = ?", whereArgs: [username]);
+    return result[0];
   }
 
   static Future<int> attemptLogin(String username, String password) async {
@@ -151,6 +159,26 @@ class DatabaseHelper {
     print(success);
   }
 
+  static Future<void> addWatchedMovie(String id, String title) async {
+    Database db = await openDatabase(
+        join(await getDatabasesPath(), "movie_groups_database.db"));
+    Map<String, dynamic> input = {
+      'id': id,
+      'user': currentUser,
+      'title': title
+    };
+
+    await db.insert("watchedMovies", input);
+  }
+
+  static Future<void> removeWatchedMovie(String id) async {
+    Database db = await openDatabase(
+        join(await getDatabasesPath(), "movie_groups_database.db"));
+
+    db.rawDelete('DELETE FROM watchedMovies WHERE id = ? AND user = ?',
+        [id, currentUser]);
+  }
+
   static Future<void> addNewGroup(String header, List<String> movieIDs) async {
     if (movieIDs.length < 5) {
       return;
@@ -186,34 +214,42 @@ class DatabaseHelper {
     print(success);
   }
 
+  static Future<List<Map<String, dynamic>>> getWatchedMovies() async {
+    Database db = await openDatabase(
+        join(await getDatabasesPath(), "movie_groups_database.db"));
+    return await db
+        .query("watchedMovies", where: 'user = ?', whereArgs: [currentUser]);
+  }
+
   static Future<List<MovieGroupData>> getMovieGroups() async {
     print("Opening database");
     Database db = await openDatabase(
         join(await getDatabasesPath(), "movie_groups_database.db"));
 
-    final List<Map<String, dynamic>> groupMaps = await db.query('movieGroups', where: 'user = ?', whereArgs: [currentUser]);
+    final List<Map<String, dynamic>> groupMaps = await db
+        .query('movieGroups', where: 'user = ?', whereArgs: [currentUser]);
     final movieMaps = <Map<String, dynamic>>[];
     int movieID = -1;
     for (int i = 0; i < groupMaps.length; i++) {
       movieID = groupMaps[i]["movie1"] as int;
-      List<Map<String, dynamic>> movieMap =
-          await db.rawQuery('SELECT * FROM movies WHERE "id" = $movieID AND "user" = "$currentUser"');
+      List<Map<String, dynamic>> movieMap = await db.rawQuery(
+          'SELECT * FROM movies WHERE "id" = $movieID AND "user" = "$currentUser"');
       movieMaps.add(movieMap[0]);
       movieID = groupMaps[i]["movie2"] as int;
-      movieMap =
-          await db.rawQuery('SELECT * FROM movies WHERE "id" = $movieID AND "user" = "$currentUser"');
+      movieMap = await db.rawQuery(
+          'SELECT * FROM movies WHERE "id" = $movieID AND "user" = "$currentUser"');
       movieMaps.add(movieMap[0]);
       movieID = groupMaps[i]["movie3"] as int;
-      movieMap =
-          await db.rawQuery('SELECT * FROM movies WHERE "id" = $movieID AND "user" = "$currentUser"');
+      movieMap = await db.rawQuery(
+          'SELECT * FROM movies WHERE "id" = $movieID AND "user" = "$currentUser"');
       movieMaps.add(movieMap[0]);
       movieID = groupMaps[i]["movie4"] as int;
-      movieMap =
-          await db.rawQuery('SELECT * FROM movies WHERE "id" = $movieID AND "user" = "$currentUser"');
+      movieMap = await db.rawQuery(
+          'SELECT * FROM movies WHERE "id" = $movieID AND "user" = "$currentUser"');
       movieMaps.add(movieMap[0]);
       movieID = groupMaps[i]["movie5"] as int;
-      movieMap =
-          await db.rawQuery('SELECT * FROM movies WHERE "id" = $movieID AND "user" = "$currentUser"');
+      movieMap = await db.rawQuery(
+          'SELECT * FROM movies WHERE "id" = $movieID AND "user" = "$currentUser"');
       movieMaps.add(movieMap[0]);
     }
     //We need to go through
@@ -255,7 +291,8 @@ class DatabaseHelper {
           'watched': movieData.isCompleted,
         };
         int movieID = movieData.movieID;
-        db.update("movies", input, where: "id = ? AND user = ?", whereArgs: [movieID, currentUser]);
+        db.update("movies", input,
+            where: "id = ? AND user = ?", whereArgs: [movieID, currentUser]);
       }
     }
   }
