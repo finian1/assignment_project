@@ -168,7 +168,8 @@ class DatabaseHelper {
       'title': title
     };
 
-    await db.insert("watchedMovies", input);
+    await db.insert("watchedMovies", input,
+        conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
   static Future<void> removeWatchedMovie(String id) async {

@@ -82,7 +82,12 @@ class _ProfilePageState extends State<ProfilePage> {
           //Watched movies list
           SizedBox(
             height: MediaQuery.of(context).size.height * 0.45,
-            child: ListView(),
+            child: ListView.builder(
+              itemCount: widget.watchedMovies.length,
+              itemBuilder: (context, index) {
+                return Text(widget.watchedMovies[index]['title']);
+              },
+            ),
           ),
           SizedBox(
             height: MediaQuery.of(context).size.height * 0.1,
