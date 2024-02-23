@@ -77,10 +77,12 @@ class _MainMenuPageState extends State<MainMenuPage> {
                           thumbShape: const RoundSliderThumbShape(
                               enabledThumbRadius: 0.0)),
                       child: Slider(
-                        value: (XP_PER_LEVEL -
-                                (DatabaseHelper.currentUser.xpValue %
-                                    XP_PER_LEVEL)) /
-                            XP_PER_LEVEL,
+                        //Getting percentage remaining
+                        value: 1 -
+                            ((XP_PER_LEVEL -
+                                    (DatabaseHelper.currentUser.xpValue %
+                                        XP_PER_LEVEL)) /
+                                XP_PER_LEVEL),
                         onChanged: (val) {},
                       ),
                     ),

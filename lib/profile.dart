@@ -90,12 +90,38 @@ class _ProfilePageState extends State<ProfilePage> {
           ), //Name and current level text row
           //Watched movies list
           SizedBox(
+            height: MediaQuery.of(context).size.height * 0.04,
+            child: const Text(
+              "Watched Movies",
+              style: TextStyle(fontSize: 30),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          Container(
             height: MediaQuery.of(context).size.height * 0.45,
-            child: ListView.builder(
-              itemCount: widget.watchedMovies.length,
-              itemBuilder: (context, index) {
-                return Text(widget.watchedMovies[index]['title']);
-              },
+            color: Color.fromARGB(255, 227, 240, 255),
+            child: MediaQuery.removePadding(
+              context: context,
+              removeTop: true,
+              child: ListView.builder(
+                itemCount: widget.watchedMovies.length,
+                itemBuilder: (context, index) {
+                  return Container(
+                      height: 40,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: Color.fromARGB(255, 141, 194, 255),
+                        border: Border.all(
+                          width: 1.0,
+                          color: Color.fromARGB(255, 227, 240, 255),
+                        ),
+                      ),
+                      child: Text(
+                        widget.watchedMovies[index]['title'],
+                        textAlign: TextAlign.center,
+                      ));
+                },
+              ),
             ),
           ),
           SizedBox(
