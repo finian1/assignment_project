@@ -69,16 +69,20 @@ class _MainMenuPageState extends State<MainMenuPage> {
                   mainAxisSize: MainAxisSize.max,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text('Level: 5\nXP: 929'),
+                    Text(
+                        'Level: ${DatabaseHelper.currentUser.xpValue ~/ XP_PER_LEVEL}\nXP: ${DatabaseHelper.currentUser.xpValue % XP_PER_LEVEL}'),
                     SliderTheme(
-                      child: Slider(
-                        value: widget.levelUpPercent,
-                        onChanged: (val) {},
-                      ),
                       data: SliderTheme.of(context).copyWith(
                           thumbColor: Colors.transparent,
                           thumbShape: const RoundSliderThumbShape(
                               enabledThumbRadius: 0.0)),
+                      child: Slider(
+                        value: (XP_PER_LEVEL -
+                                (DatabaseHelper.currentUser.xpValue %
+                                    XP_PER_LEVEL)) /
+                            XP_PER_LEVEL,
+                        onChanged: (val) {},
+                      ),
                     ),
                   ],
                 ),
@@ -207,6 +211,12 @@ class _MainMenuPageState extends State<MainMenuPage> {
     DatabaseHelper.updateMovieData(widget.groupData);
   }
 
+  void onGroupCompleted(int groupIndex) {
+    DatabaseHelper.addUserExperience(20);
+    DatabaseHelper.removeGroup(widget.groupData[groupIndex].id);
+    initGroupData();
+  }
+
   Future<void> initGroupData() async {
     print("grabbing data");
     widget.groupData = await DatabaseHelper.getMovieGroups();
@@ -217,6 +227,7 @@ class _MainMenuPageState extends State<MainMenuPage> {
           header: widget.groupData[index].header,
           index: index,
           onMovieChanged: onMovieChanged,
+          onGroupCompleted: onGroupCompleted,
           movieData: widget.groupData[index].data,
         ),
       );
@@ -236,10 +247,12 @@ class MovieGroup extends StatefulWidget {
       this.header = "",
       required this.index,
       required this.onMovieChanged,
+      required this.onGroupCompleted,
       required this.movieData});
   final String header;
   final int index;
   final Function(int, int, bool) onMovieChanged;
+  final Function(int) onGroupCompleted;
   final List<MovieData> movieData;
   int numMoviesCompleted = 0;
   double percentMoviesCompleted = 0.0;
@@ -283,15 +296,9 @@ class _MovieGroupState extends State<MovieGroup> {
         Text(
           'Completion %',
         ),
-        SliderTheme(
-          child: Slider(
-            value: widget.percentMoviesCompleted,
-            onChanged: (val) {},
-          ),
-          data: SliderTheme.of(context).copyWith(
-              thumbColor: Colors.transparent,
-              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 0.0)),
-        ),
+        CompletionSlider(
+            completionAmount: widget.percentMoviesCompleted,
+            onGroupCompleted: onGroupCompleted),
       ],
     );
   }
@@ -307,6 +314,43 @@ class _MovieGroupState extends State<MovieGroup> {
           widget.numMoviesCompleted.toDouble() / 5.0;
     });
     widget.onMovieChanged(widget.index, index, val);
+  }
+
+  void onGroupCompleted() {
+    widget.onGroupCompleted(widget.index);
+  }
+}
+
+class CompletionSlider extends StatelessWidget {
+  CompletionSlider(
+      {required this.completionAmount, required this.onGroupCompleted});
+
+  final double completionAmount;
+  final Function onGroupCompleted;
+
+  @override
+  Widget build(context) {
+    if (completionAmount < 1.0) {
+      return (SizedBox(
+        child: SliderTheme(
+          child: Slider(
+            value: completionAmount,
+            onChanged: (val) {},
+          ),
+          data: SliderTheme.of(context).copyWith(
+              thumbColor: Colors.transparent,
+              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 0.0)),
+        ),
+      ));
+    } else {
+      return (SizedBox(
+        child: ElevatedButton(
+            onPressed: () {
+              onGroupCompleted.call();
+            },
+            child: Text("Complete Group")),
+      ));
+    }
   }
 }
 

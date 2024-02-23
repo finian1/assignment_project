@@ -158,7 +158,6 @@ class _SignInPageState extends State<SignInPage> {
   }
 
   void login() {
-    DatabaseHelper.currentUser = usernameController.text;
     passwordController.clear();
     usernameController.clear();
     Navigator.push(

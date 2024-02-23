@@ -6,6 +6,8 @@ import 'mainmenu.dart';
 
 import 'package:flutter/rendering.dart';
 
+const int XP_PER_LEVEL = 100;
+
 class ProfilePage extends StatefulWidget {
   ProfilePage({super.key, required this.title});
   final String title;
@@ -34,8 +36,9 @@ class _ProfilePageState extends State<ProfilePage> {
     String currentName = "N/A";
     String currentLevel = "N/A";
     if (widget.user.isNotEmpty) {
-      currentName = DatabaseHelper.currentUser;
-      currentLevel = (widget.user['level'] as int).toString();
+      currentName = DatabaseHelper.currentUser.username;
+      currentLevel =
+          (DatabaseHelper.currentUser.xpValue ~/ XP_PER_LEVEL).toString();
     }
     return Scaffold(
       body: Column(
@@ -58,9 +61,12 @@ class _ProfilePageState extends State<ProfilePage> {
             height: MediaQuery.of(context).size.height * 0.1,
             child: Row(
               children: [
+                SizedBox(
+                  width: MediaQuery.of(context).size.width * 0.05,
+                ),
                 //Name
                 SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.5,
+                  width: MediaQuery.of(context).size.width * 0.45,
                   child: Text(
                     "Name: $currentName",
                     style: const TextStyle(fontSize: 30),
@@ -69,12 +75,15 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
                 //Level
                 SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.5,
+                  width: MediaQuery.of(context).size.width * 0.45,
                   child: Text(
                     "Level: $currentLevel",
                     style: const TextStyle(fontSize: 30),
                     textAlign: TextAlign.right,
                   ),
+                ),
+                SizedBox(
+                  width: MediaQuery.of(context).size.width * 0.05,
                 ),
               ],
             ),
@@ -113,7 +122,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Future<void> getUser() async {
     Map<String, dynamic> user =
-        await DatabaseHelper.getUser(DatabaseHelper.currentUser);
+        await DatabaseHelper.getUser(DatabaseHelper.currentUser.username);
     setState(() {
       widget.user = user;
     });

@@ -23,6 +23,12 @@ class MovieGroupData {
   List<MovieData> data;
 }
 
+class UserData {
+  UserData({required this.username, required this.xpValue});
+  String username;
+  int xpValue;
+}
+
 class DatabaseHelper {
   static Database? _database;
   static TMDB tmdb = TMDB(ApiKeys('1701c7dbb0e18d0bd9948fd6d5ae94d7',
@@ -30,7 +36,7 @@ class DatabaseHelper {
 
   static const String baseUrl = "https://api.themoviedb.org/3";
   static const String imageBaseUrl = "https://image.tmdb.org/t/p/w500";
-  static String currentUser = "";
+  static UserData currentUser = UserData(username: "", xpValue: 0);
   static Future<String> getNameFromID(int id) async {
     Map movie = await tmdb.v3.movies.getDetails(id);
     try {
@@ -68,7 +74,7 @@ class DatabaseHelper {
         db.execute(
             'CREATE TABLE movies(id STRING, user STRING, watched BIT, title STRING, PRIMARY KEY(id, user))');
         db.execute(
-            'CREATE TABLE users(username STRING PRIMARY KEY, password STRING, xpValue INTEGER, level INTEGER)');
+            'CREATE TABLE users(username STRING PRIMARY KEY, password STRING, xpValue INTEGER)');
         db.execute(
             'CREATE TABLE watchedMovies(id STRING, user STRING, title STRING, PRIMARY KEY(id, user))');
       },
@@ -95,10 +101,20 @@ class DatabaseHelper {
       'username': username,
       'password': password,
       'xpValue': 0,
-      'level': 1
     };
     await db.insert('users', user);
     return 1;
+  }
+
+  static Future<void> addUserExperience(int amount) async {
+    Database db = await openDatabase(
+        join(await getDatabasesPath(), "movie_groups_database.db"));
+    Map<String, dynamic> input = {
+      'xpValue': currentUser.xpValue + amount,
+    };
+    currentUser.xpValue += amount;
+    db.update("users", input,
+        where: "username = ?", whereArgs: [currentUser.username]);
   }
 
   static Future<Map<String, dynamic>> getUser(String username) async {
@@ -124,6 +140,9 @@ class DatabaseHelper {
     }
     Map userMap = checkResult[0];
     if (userMap['password'] == password) {
+      currentUser = UserData(
+          username: userMap['username'] as String,
+          xpValue: userMap['xpValue'] as int);
       return 1;
     }
     return -1;
@@ -147,7 +166,7 @@ class DatabaseHelper {
         join(await getDatabasesPath(), "movie_groups_database.db"));
     Map<String, dynamic> input = {
       'id': uniqueID,
-      'user': currentUser,
+      'user': currentUser.username,
       'watched': watched,
       'title': title
     };
@@ -164,7 +183,7 @@ class DatabaseHelper {
         join(await getDatabasesPath(), "movie_groups_database.db"));
     Map<String, dynamic> input = {
       'id': id,
-      'user': currentUser,
+      'user': currentUser.username,
       'title': title
     };
 
@@ -177,7 +196,7 @@ class DatabaseHelper {
         join(await getDatabasesPath(), "movie_groups_database.db"));
 
     db.rawDelete('DELETE FROM watchedMovies WHERE id = ? AND user = ?',
-        [id, currentUser]);
+        [id, currentUser.username]);
   }
 
   static Future<void> addNewGroup(String header, List<String> movieIDs) async {
@@ -199,7 +218,7 @@ class DatabaseHelper {
     //uniqueID++;
     Map<String, dynamic> input = {
       'id': uniqueID,
-      'user': currentUser,
+      'user': currentUser.username,
       'groupName': header,
       'movie1': movieIDs[0],
       'movie2': movieIDs[1],
@@ -218,8 +237,8 @@ class DatabaseHelper {
   static Future<List<Map<String, dynamic>>> getWatchedMovies() async {
     Database db = await openDatabase(
         join(await getDatabasesPath(), "movie_groups_database.db"));
-    return await db
-        .query("watchedMovies", where: 'user = ?', whereArgs: [currentUser]);
+    return await db.query("watchedMovies",
+        where: 'user = ?', whereArgs: [currentUser.username]);
   }
 
   static Future<List<MovieGroupData>> getMovieGroups() async {
@@ -227,30 +246,31 @@ class DatabaseHelper {
     Database db = await openDatabase(
         join(await getDatabasesPath(), "movie_groups_database.db"));
 
-    final List<Map<String, dynamic>> groupMaps = await db
-        .query('movieGroups', where: 'user = ?', whereArgs: [currentUser]);
+    final List<Map<String, dynamic>> groupMaps = await db.query('movieGroups',
+        where: 'user = ?', whereArgs: [currentUser.username]);
     final movieMaps = <Map<String, dynamic>>[];
     int movieID = -1;
+    String username = currentUser.username;
     for (int i = 0; i < groupMaps.length; i++) {
       movieID = groupMaps[i]["movie1"] as int;
       List<Map<String, dynamic>> movieMap = await db.rawQuery(
-          'SELECT * FROM movies WHERE "id" = $movieID AND "user" = "$currentUser"');
+          'SELECT * FROM movies WHERE "id" = $movieID AND "user" = "$username"');
       movieMaps.add(movieMap[0]);
       movieID = groupMaps[i]["movie2"] as int;
       movieMap = await db.rawQuery(
-          'SELECT * FROM movies WHERE "id" = $movieID AND "user" = "$currentUser"');
+          'SELECT * FROM movies WHERE "id" = $movieID AND "user" = "$username"');
       movieMaps.add(movieMap[0]);
       movieID = groupMaps[i]["movie3"] as int;
       movieMap = await db.rawQuery(
-          'SELECT * FROM movies WHERE "id" = $movieID AND "user" = "$currentUser"');
+          'SELECT * FROM movies WHERE "id" = $movieID AND "user" = "$username"');
       movieMaps.add(movieMap[0]);
       movieID = groupMaps[i]["movie4"] as int;
       movieMap = await db.rawQuery(
-          'SELECT * FROM movies WHERE "id" = $movieID AND "user" = "$currentUser"');
+          'SELECT * FROM movies WHERE "id" = $movieID AND "user" = "$username"');
       movieMaps.add(movieMap[0]);
       movieID = groupMaps[i]["movie5"] as int;
       movieMap = await db.rawQuery(
-          'SELECT * FROM movies WHERE "id" = $movieID AND "user" = "$currentUser"');
+          'SELECT * FROM movies WHERE "id" = $movieID AND "user" = "$username"');
       movieMaps.add(movieMap[0]);
     }
     //We need to go through
@@ -293,7 +313,8 @@ class DatabaseHelper {
         };
         int movieID = movieData.movieID;
         db.update("movies", input,
-            where: "id = ? AND user = ?", whereArgs: [movieID, currentUser]);
+            where: "id = ? AND user = ?",
+            whereArgs: [movieID, currentUser.username]);
       }
     }
   }
