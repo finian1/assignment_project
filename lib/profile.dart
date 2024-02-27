@@ -1,4 +1,5 @@
 import 'package:assignment_project/database.dart';
+import 'package:assignment_project/settings.dart';
 import 'package:flutter/material.dart';
 import 'package:tmdb_api/tmdb_api.dart';
 import 'dart:async';
@@ -125,14 +126,58 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
           ),
           SizedBox(
-            height: MediaQuery.of(context).size.height * 0.1,
-            width: MediaQuery.of(context).size.width * 0.3,
-            child: ElevatedButton(
-              child: const Text("Back"),
-              onPressed: () {
-                Navigator.pop(context);
-              },
-            ),
+            height: MediaQuery.of(context).size.height * 0.07,
+            width: MediaQuery.of(context).size.width * 1.0,
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(
+                height: MediaQuery.of(context).size.height * 0.07,
+                width: MediaQuery.of(context).size.width * 0.3,
+                child: ElevatedButton(
+                  child: const Text("Back"),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                ),
+              ),
+              SizedBox(
+                height: MediaQuery.of(context).size.height * 0.07,
+                width: MediaQuery.of(context).size.width * 0.1,
+              ),
+              SizedBox(
+                height: MediaQuery.of(context).size.height * 0.07,
+                width: MediaQuery.of(context).size.width * 0.3,
+                //Settings button
+                child: ElevatedButton.icon(
+                  label: Text(""),
+                  icon: const Icon(
+                    Icons.settings,
+                    color: Color.fromARGB(255, 255, 255, 255),
+                    size: 40,
+                  ),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => SettingsPage(
+                          title: 'Settings',
+                        ),
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(50.0),
+                    ),
+                    fixedSize: const Size(100, 100),
+                    padding: EdgeInsets.only(left: 10.0),
+                    backgroundColor: Color.fromARGB(255, 0, 255, 242),
+                  ),
+                ),
+              ),
+            ],
           )
         ],
       ),

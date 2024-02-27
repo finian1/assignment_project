@@ -8,6 +8,7 @@ import 'mainmenu.dart';
 import 'database.dart';
 import 'addgroup.dart';
 import 'profile.dart';
+import 'settings.dart';
 import 'dart:io';
 
 void main() async {
@@ -38,6 +39,7 @@ class MyApp extends StatelessWidget {
             ),
         '/AddGroup': (context) => AddGroupPage(title: 'Add Group'),
         '/Profile': (context) => ProfilePage(title: 'Profile'),
+        '/Settings': (context) => SettingsPage(title: 'Settings'),
       },
     );
   }

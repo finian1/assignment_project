@@ -93,7 +93,7 @@ class _MainMenuPageState extends State<MainMenuPage> {
           ),
           SizedBox(
             width: double.infinity,
-            height: MediaQuery.of(context).size.height * 0.55,
+            height: MediaQuery.of(context).size.height * 0.5,
             child: CarouselSlider(
               items: widget.movieGroups,
               carouselController: movieGroupsController,
@@ -113,7 +113,7 @@ class _MainMenuPageState extends State<MainMenuPage> {
             ),
           ),
           SizedBox(
-            height: MediaQuery.of(context).size.height * 0.3,
+            height: MediaQuery.of(context).size.height * 0.25,
             child: Column(
               children: [
                 Row(
@@ -177,19 +177,32 @@ class _MainMenuPageState extends State<MainMenuPage> {
                     ),
                   ],
                 ),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => ProfilePage(
-                          title: 'Profile',
-                        ),
-                      ),
-                    );
-                  },
-                  child: const Text('Profile'),
-                ),
+                SizedBox(height: MediaQuery.of(context).size.height * 0.03),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: const Text('Back'),
+                    ),
+                    SizedBox(width: MediaQuery.of(context).size.width * 0.1),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ProfilePage(
+                              title: 'Profile',
+                            ),
+                          ),
+                        );
+                      },
+                      child: const Text('Profile'),
+                    ),
+                  ],
+                )
               ],
             ),
           ),
