@@ -24,9 +24,21 @@ class MovieGroupData {
 }
 
 class UserData {
-  UserData({required this.username, required this.xpValue});
+  UserData(
+      {required this.username, required this.settings, required this.xpValue});
   String username;
+  List<Setting> settings;
   int xpValue;
+}
+
+class Setting {
+  Setting({required this.settingName, required this.selected});
+  String settingName = "";
+  bool selected = false;
+
+  Setting copy() {
+    return Setting(selected: selected, settingName: settingName);
+  }
 }
 
 class DatabaseHelper {
@@ -36,7 +48,8 @@ class DatabaseHelper {
 
   static const String baseUrl = "https://api.themoviedb.org/3";
   static const String imageBaseUrl = "https://image.tmdb.org/t/p/w500";
-  static UserData currentUser = UserData(username: "", xpValue: 0);
+  static UserData currentUser =
+      UserData(username: "", settings: [], xpValue: 0);
   static Future<String> getNameFromID(int id) async {
     Map movie = await tmdb.v3.movies.getDetails(id);
     try {
@@ -77,6 +90,8 @@ class DatabaseHelper {
             'CREATE TABLE users(username STRING PRIMARY KEY, password STRING, xpValue INTEGER)');
         db.execute(
             'CREATE TABLE watchedMovies(id STRING, user STRING, title STRING, PRIMARY KEY(id, user))');
+        db.execute(
+            'CREATE TABLE settings(username STRING PRIMARY KEY, darkMode BIT, leftHand BIT, autoComplete BIT)');
       },
       version: 1,
     );
@@ -102,7 +117,14 @@ class DatabaseHelper {
       'password': password,
       'xpValue': 0,
     };
+    Map<String, dynamic> settings = {
+      'username': username,
+      'darkMode': false,
+      'leftHand': false,
+      'autoComplete': false,
+    };
     await db.insert('users', user);
+    await db.insert('settings', settings);
     return 1;
   }
 
@@ -138,14 +160,57 @@ class DatabaseHelper {
     if (checkResult.isEmpty) {
       return -1;
     }
+    List<Setting> userSettings = await DatabaseHelper.getSettings(username);
     Map userMap = checkResult[0];
     if (userMap['password'] == password) {
       currentUser = UserData(
           username: userMap['username'] as String,
+          settings: userSettings,
           xpValue: userMap['xpValue'] as int);
       return 1;
     }
     return -1;
+  }
+
+  static Future<void> updateSettings(List<Setting> settings) async {
+    Database db = await openDatabase(
+        join(await getDatabasesPath(), "movie_groups_database.db"));
+    Map<String, dynamic> input = {
+      settings[0].settingName: settings[0].selected,
+      settings[1].settingName: settings[1].selected,
+      settings[2].settingName: settings[2].selected,
+    };
+    currentUser.settings = settings;
+    db.update("settings", input,
+        where: "username = ?", whereArgs: [currentUser.username]);
+  }
+
+  static Future<List<Setting>> getSettings(String username) async {
+    Database db = await openDatabase(
+        join(await getDatabasesPath(), "movie_groups_database.db"));
+    List<Map<String, dynamic>> checkResult;
+    try {
+      checkResult = await db
+          .rawQuery('SELECT * FROM settings WHERE username = "$username"');
+    } catch (e) {
+      print("Error loading settings");
+      return [];
+    }
+    if (checkResult.isEmpty) {
+      return [];
+    }
+    Map userSettings = checkResult[0];
+    return [
+      Setting(
+          settingName: "darkMode",
+          selected: userSettings["darkMode"] as int == 0 ? false : true),
+      Setting(
+          settingName: "leftHand",
+          selected: userSettings["leftHand"] as int == 0 ? false : true),
+      Setting(
+          settingName: "autoComplete",
+          selected: userSettings["autoComplete"] as int == 0 ? false : true)
+    ];
   }
 
   static Future<void> createTables() async {
