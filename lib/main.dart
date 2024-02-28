@@ -7,6 +7,7 @@ import 'signup.dart';
 import 'mainmenu.dart';
 import 'database.dart';
 import 'addgroup.dart';
+import 'themes.dart';
 import 'profile.dart';
 import 'settings.dart';
 import 'dart:io';
@@ -24,10 +25,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'MoviXP',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
+      theme: AppThemes.light(),
+      darkTheme: AppThemes.dark(),
+      themeMode: AppThemes.currentTheme,
       initialRoute: '/',
       routes: {
         '/': (context) => SignInPage(

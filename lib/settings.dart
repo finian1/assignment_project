@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'database.dart';
+import 'themes.dart';
 
 class SettingsPage extends StatefulWidget {
   SettingsPage({super.key, required this.title});
@@ -91,6 +92,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
   void onSettingChanged(int index, bool val) {
     setState(() {
+      AppTheme.currentTheme = ThemeMode.dark;
       widget.settings[index].selected = val;
     });
   }
