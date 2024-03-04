@@ -92,6 +92,23 @@ class _SignUpPageState extends State<SignUpPage> {
         usernameController.text, passwordController.text);
     if (result == -1) {
       //Error, user already exists
+      showDialog<void>(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text("Error"),
+            content: const Text("Username is not unique."),
+            actions: [
+              TextButton(
+                child: const Text('Ok'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              )
+            ],
+          );
+        },
+      );
     }
     if (result == 1) {
       returnToLoginMenu();
