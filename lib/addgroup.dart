@@ -49,16 +49,16 @@ class _AddGroupPageState extends State<AddGroupPage> {
           //Search bar
           SizedBox(
             width: double.infinity,
-            height: 90,
+            height: MediaQuery.of(context).size.height * 0.05,
             child: Row(
               children: [
-                const SizedBox(
-                  width: 20,
-                  height: 90,
+                SizedBox(
+                  width: MediaQuery.of(context).size.width * 0.01,
+                  height: MediaQuery.of(context).size.height * 0.05,
                 ),
                 SizedBox(
-                  width: 300,
-                  height: 90,
+                  width: MediaQuery.of(context).size.width * 0.8,
+                  height: MediaQuery.of(context).size.height * 0.05,
                   child: TextFormField(
                     controller: searchController,
                     textInputAction: TextInputAction.search,
@@ -71,13 +71,17 @@ class _AddGroupPageState extends State<AddGroupPage> {
                   ),
                 ),
                 //Search button
-                ElevatedButton.icon(
-                  icon: const Icon(Icons.search),
-                  label: const Text(""),
-                  onPressed: () {
-                    FocusManager.instance.primaryFocus?.unfocus();
-                    searchMovies(searchController.text);
-                  },
+                SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.05,
+                  width: MediaQuery.of(context).size.width * 0.19,
+                  child: ElevatedButton.icon(
+                    icon: const Icon(Icons.search),
+                    label: const Text(""),
+                    onPressed: () {
+                      FocusManager.instance.primaryFocus?.unfocus();
+                      searchMovies(searchController.text);
+                    },
+                  ),
                 ),
               ],
             ),
@@ -232,8 +236,10 @@ class _AddGroupPageState extends State<AddGroupPage> {
       for (int i = 0; i < movies.length; i++) {
         widget.loadedMoviePairs.add(MoviePair(
             movies[i]['title'].toString(), movies[i]['id'].toString()));
-        widget.loadedMovieCards
-            .add(MovieCard(movies[i]['title'].toString(), i, movieSelected));
+        widget.loadedMovieCards.add(MovieCard(
+            "${movies[i]['title'].toString()} - ${movies[i]['release_date'].toString()}",
+            i,
+            movieSelected));
       }
     });
   }

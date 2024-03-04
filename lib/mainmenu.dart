@@ -94,6 +94,7 @@ class _MainMenuPageState extends State<MainMenuPage> {
           SizedBox(
             width: double.infinity,
             height: MediaQuery.of(context).size.height * 0.5,
+            //Group carousel
             child: CarouselSlider(
               items: widget.movieGroups,
               carouselController: movieGroupsController,
@@ -335,9 +336,6 @@ class _MovieGroupState extends State<MovieGroup> {
         const Divider(
           thickness: 1,
         ),
-        Text(
-          'Completion %',
-        ),
         CompletionSlider(
             completionAmount: widget.percentMoviesCompleted,
             onGroupCompleted: onGroupCompleted),
@@ -374,6 +372,7 @@ class CompletionSlider extends StatelessWidget {
   Widget build(context) {
     if (completionAmount < 1.0) {
       return (SizedBox(
+        height: MediaQuery.of(context).size.height * 0.04,
         child: SliderTheme(
           child: Slider(
             value: completionAmount,
@@ -386,6 +385,7 @@ class CompletionSlider extends StatelessWidget {
       ));
     } else {
       return (SizedBox(
+        height: MediaQuery.of(context).size.height * 0.04,
         child: ElevatedButton(
             onPressed: () {
               onGroupCompleted.call();
@@ -420,8 +420,8 @@ class _MovieCardState extends State<MovieCard> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 190,
-      height: 59,
+      width: MediaQuery.of(context).size.width * 0.9,
+      height: MediaQuery.of(context).size.height * 0.07,
       alignment: Alignment.center,
       decoration: BoxDecoration(
         color: Color(0xFF00D2FF),
