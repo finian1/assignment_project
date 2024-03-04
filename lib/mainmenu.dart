@@ -128,9 +128,31 @@ class _MainMenuPageState extends State<MainMenuPage> {
                       ),
                       onPressed: () {
                         if (widget.groupData.isNotEmpty) {
-                          DatabaseHelper.removeGroup(
-                              widget.groupData[_currentIndex].id);
-                          initGroupData();
+                          showDialog<void>(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: const Text("Remove Group"),
+                                content: const Text(
+                                    "Are you sure you want to remove this group?"),
+                                actions: [
+                                  TextButton(
+                                    child: const Text('Yes'),
+                                    onPressed: () {
+                                      Navigator.pop(context, true);
+                                      RemoveCurrentGroup();
+                                    },
+                                  ),
+                                  TextButton(
+                                    child: const Text('No'),
+                                    onPressed: () {
+                                      Navigator.pop(context, false);
+                                    },
+                                  )
+                                ],
+                              );
+                            },
+                          );
                         }
                       },
                       label: const Text(""),
@@ -209,6 +231,11 @@ class _MainMenuPageState extends State<MainMenuPage> {
         ],
       ),
     );
+  }
+
+  void RemoveCurrentGroup() {
+    DatabaseHelper.removeGroup(widget.groupData[_currentIndex].id);
+    initGroupData();
   }
 
   void onMovieChanged(int groupIndex, int movieIndex, bool val) {
