@@ -1,8 +1,5 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'database.dart';
-import 'themes.dart';
 
 class SettingsPage extends StatefulWidget {
   SettingsPage({super.key, required this.title});
@@ -15,6 +12,8 @@ class SettingsPage extends StatefulWidget {
   State<SettingsPage> createState() => _SettingsPageState();
 }
 
+//Settings page, displays a list of settings that the user can alter
+//A local copy of the settings is made so that the user can leave the page without committing the new settings
 class _SettingsPageState extends State<SettingsPage> {
   @override
   void initState() {
@@ -30,11 +29,11 @@ class _SettingsPageState extends State<SettingsPage> {
           SizedBox(
             height: MediaQuery.of(context).size.height * 0.05,
           ),
-          Text(
+          const Text(
             "Settings",
             style: TextStyle(fontSize: 40),
           ),
-          Container(
+          SizedBox(
             height: MediaQuery.of(context).size.height * 0.7,
             child: ListView.builder(
               itemCount: widget.settings.length,
@@ -47,7 +46,7 @@ class _SettingsPageState extends State<SettingsPage> {
               },
             ),
           ),
-          Container(
+          SizedBox(
             height: MediaQuery.of(context).size.height * 0.08,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -73,6 +72,7 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
+  //Gets the user's current settings
   void getSettings() {
     setState(() {
       widget.settings = DatabaseHelper.currentUser.settings
@@ -81,24 +81,26 @@ class _SettingsPageState extends State<SettingsPage> {
     });
   }
 
+  //Updates the users settings to the new values
   Future<void> updateSettings() async {
     await DatabaseHelper.updateSettings(widget.settings);
     backToMenu();
   }
 
+  //Returns to previous page
   void backToMenu() {
     Navigator.pop(context);
   }
 
+  //Updates our local copy of the settings
   void onSettingChanged(int index, bool val) {
     setState(() {
       widget.settings[index].selected = val;
     });
   }
-
-  void saveSettings() {}
 }
 
+// Settings tab that includes a setting name and a check box with onChangedValue function for user input
 class SettingsTab extends StatelessWidget {
   SettingsTab(
       {required this.settingName,
@@ -116,7 +118,7 @@ class SettingsTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       width: MediaQuery.of(context).size.width * 0.9,
       height: MediaQuery.of(context).size.height * 0.1,
       child: Row(

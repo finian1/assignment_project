@@ -2,11 +2,6 @@ import 'package:assignment_project/addgroup.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'dart:async';
-import 'package:path/path.dart';
-import 'package:sqflite/sqflite.dart';
-import 'package:tmdb_api/tmdb_api.dart';
-import 'dart:io';
-
 import 'database.dart';
 import 'profile.dart';
 
@@ -47,7 +42,7 @@ class _MainMenuPageState extends State<MainMenuPage> {
             child: Row(
               children: [
                 Align(
-                  alignment: AlignmentDirectional(-1, 0),
+                  alignment: const AlignmentDirectional(-1, 0),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(8),
                     child: Image.network(
@@ -141,7 +136,7 @@ class _MainMenuPageState extends State<MainMenuPage> {
                                     child: const Text('Yes'),
                                     onPressed: () {
                                       Navigator.pop(context, true);
-                                      RemoveCurrentGroup();
+                                      removeCurrentGroup();
                                     },
                                   ),
                                   TextButton(
@@ -162,11 +157,11 @@ class _MainMenuPageState extends State<MainMenuPage> {
                           borderRadius: BorderRadius.circular(50.0),
                         ),
                         fixedSize: const Size(100, 100),
-                        padding: EdgeInsets.only(left: 10.0),
-                        backgroundColor: Color.fromARGB(255, 0, 255, 242),
+                        padding: const EdgeInsets.only(left: 10.0),
+                        backgroundColor: const Color.fromARGB(255, 0, 255, 242),
                       ),
                     ),
-                    SizedBox(width: 50),
+                    const SizedBox(width: 50),
                     //Add group button
                     ElevatedButton.icon(
                       icon: const Icon(
@@ -194,8 +189,8 @@ class _MainMenuPageState extends State<MainMenuPage> {
                           borderRadius: BorderRadius.circular(50.0),
                         ),
                         fixedSize: const Size(100, 100),
-                        padding: EdgeInsets.only(left: 10.0),
-                        backgroundColor: Color.fromARGB(255, 0, 255, 242),
+                        padding: const EdgeInsets.only(left: 10.0),
+                        backgroundColor: const Color.fromARGB(255, 0, 255, 242),
                       ),
                     ),
                   ],
@@ -234,11 +229,13 @@ class _MainMenuPageState extends State<MainMenuPage> {
     );
   }
 
-  void RemoveCurrentGroup() {
+  //Removes the group that is currently focused on
+  void removeCurrentGroup() {
     DatabaseHelper.removeGroup(widget.groupData[_currentIndex].id);
     initGroupData();
   }
 
+  //Updates watched movies list
   void onMovieChanged(int groupIndex, int movieIndex, bool val) {
     setState(() {
       widget.groupData[groupIndex].data[movieIndex].isCompleted = val;
@@ -260,8 +257,8 @@ class _MainMenuPageState extends State<MainMenuPage> {
     initGroupData();
   }
 
+  //Gets all current group data from the database and creates the movieGroups list.
   Future<void> initGroupData() async {
-    print("grabbing data");
     widget.groupData = await DatabaseHelper.getMovieGroups();
     setState(() {
       widget.movieGroups = List<MovieGroup>.generate(
@@ -279,7 +276,6 @@ class _MainMenuPageState extends State<MainMenuPage> {
         widget.groupData.isNotEmpty) {
       _currentIndex = widget.groupData.length - 1;
     }
-    print("Data grabbed");
   }
 }
 
@@ -343,6 +339,7 @@ class _MovieGroupState extends State<MovieGroup> {
     );
   }
 
+  //When a movie is watched or unwatched, we update the current number watched in the group and update our watched movies list.
   void onMovieChanged(int index, bool val) {
     setState(() {
       if (val) {
@@ -361,9 +358,12 @@ class _MovieGroupState extends State<MovieGroup> {
   }
 }
 
+//Completion progress bar displays how close the user is to completing a group.
 class CompletionSlider extends StatelessWidget {
   CompletionSlider(
-      {required this.completionAmount, required this.onGroupCompleted});
+      {super.key,
+      required this.completionAmount,
+      required this.onGroupCompleted});
 
   final double completionAmount;
   final Function onGroupCompleted;
@@ -374,13 +374,13 @@ class CompletionSlider extends StatelessWidget {
       return (SizedBox(
         height: MediaQuery.of(context).size.height * 0.04,
         child: SliderTheme(
+          data: SliderTheme.of(context).copyWith(
+              thumbColor: Colors.transparent,
+              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 0.0)),
           child: Slider(
             value: completionAmount,
             onChanged: (val) {},
           ),
-          data: SliderTheme.of(context).copyWith(
-              thumbColor: Colors.transparent,
-              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 0.0)),
         ),
       ));
     } else {
@@ -390,7 +390,7 @@ class CompletionSlider extends StatelessWidget {
             onPressed: () {
               onGroupCompleted.call();
             },
-            child: Text("Complete Group")),
+            child: const Text("Complete Group")),
       ));
     }
   }
@@ -424,7 +424,7 @@ class _MovieCardState extends State<MovieCard> {
       height: MediaQuery.of(context).size.height * 0.07,
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: Color(0xFF00D2FF),
+        color: const Color(0xFF00D2FF),
         shape: BoxShape.rectangle,
         border: Border.all(
           width: 2,

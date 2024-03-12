@@ -1,20 +1,14 @@
 import 'package:assignment_project/profile.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:sqflite/sqflite.dart';
-import 'package:tmdb_api/tmdb_api.dart';
 import 'signup.dart';
 import 'mainmenu.dart';
 import 'database.dart';
 import 'addgroup.dart';
 import 'themes.dart';
-import 'profile.dart';
 import 'settings.dart';
-import 'dart:io';
 
 void main() async {
   await DatabaseHelper.getDBConnector();
-  await DatabaseHelper.createTables();
   runApp(const MyApp());
 }
 
@@ -30,10 +24,10 @@ class MyApp extends StatelessWidget {
       themeMode: AppThemes.currentTheme,
       initialRoute: '/',
       routes: {
-        '/': (context) => SignInPage(
+        '/': (context) => const SignInPage(
               title: 'Sign In',
             ),
-        '/SignUp': (context) => SignUpPage(title: 'Sign Up'),
+        '/SignUp': (context) => const SignUpPage(title: 'Sign Up'),
         '/MainMenu': (context) => MainMenuPage(
               title: 'Main Menu',
             ),
@@ -106,7 +100,7 @@ class _SignInPageState extends State<SignInPage> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => SignUpPage(
+                        builder: (context) => const SignUpPage(
                           title: 'Sign Up',
                         ),
                       ),
@@ -159,6 +153,7 @@ class _SignInPageState extends State<SignInPage> {
     );
   }
 
+  //Logs the user in
   void login() {
     passwordController.clear();
     usernameController.clear();

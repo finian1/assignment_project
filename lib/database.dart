@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:assignment_project/mainmenu.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:tmdb_api/tmdb_api.dart';
@@ -95,11 +94,6 @@ class DatabaseHelper {
       },
       version: 1,
     );
-    if (_database == null) {
-      print("DB failed to init for some reason");
-    } else {
-      print("DB init succesful");
-    }
     return _database;
   }
 
@@ -193,7 +187,6 @@ class DatabaseHelper {
       checkResult = await db
           .rawQuery('SELECT * FROM settings WHERE username = "$username"');
     } catch (e) {
-      print("Error loading settings");
       return [];
     }
     if (checkResult.isEmpty) {
@@ -213,18 +206,6 @@ class DatabaseHelper {
     ];
   }
 
-  static Future<void> createTables() async {
-    //Database db = await openDatabase(
-    //    join(await getDatabasesPath(), "movie_groups_database.db"));
-    //await addNewMovie(0, false);
-    //await addNewMovie(1, false);
-    //await addNewMovie(2, false);
-    //await addNewMovie(3, false);
-    //await addNewMovie(4, false);
-    //await addNewGroup(1, "test", [0, 1, 2, 3, 4]);
-    //await addNewGroup(2, "hello", [2, 3, 1, 3, 4]);
-  }
-
   static Future<void> addNewMovie(
       String uniqueID, bool watched, String title) async {
     Database db = await openDatabase(
@@ -235,12 +216,11 @@ class DatabaseHelper {
       'watched': watched,
       'title': title
     };
-    int success = await db.insert(
+    await db.insert(
       'movies',
       input,
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
-    print(success);
   }
 
   static Future<void> addWatchedMovie(String id, String title) async {
@@ -272,15 +252,7 @@ class DatabaseHelper {
     Database db = await openDatabase(
         join(await getDatabasesPath(), "movie_groups_database.db"));
     final List<Map<String, dynamic>> groupMaps = await db.query('movieGroups');
-    //List<Map> uniqueIDrow =
-    //await db.rawQuery('SELECT MAX(id) FROM movieGroups');
     int uniqueID = groupMaps.length + 1;
-    //try {
-    //  uniqueID = uniqueIDrow[0]['id'] as int;
-    //} catch (e) {
-    //  uniqueID = -1;
-    //}
-    //uniqueID++;
     Map<String, dynamic> input = {
       'id': uniqueID,
       'user': currentUser.username,
@@ -291,12 +263,11 @@ class DatabaseHelper {
       'movie4': movieIDs[3],
       'movie5': movieIDs[4],
     };
-    int success = await db.insert(
+    await db.insert(
       'movieGroups',
       input,
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
-    print(success);
   }
 
   static Future<List<Map<String, dynamic>>> getWatchedMovies() async {
@@ -307,7 +278,6 @@ class DatabaseHelper {
   }
 
   static Future<List<MovieGroupData>> getMovieGroups() async {
-    print("Opening database");
     Database db = await openDatabase(
         join(await getDatabasesPath(), "movie_groups_database.db"));
 

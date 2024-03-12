@@ -1,11 +1,7 @@
 import 'package:assignment_project/database.dart';
 import 'package:assignment_project/settings.dart';
 import 'package:flutter/material.dart';
-import 'package:tmdb_api/tmdb_api.dart';
 import 'dart:async';
-import 'mainmenu.dart';
-
-import 'package:flutter/rendering.dart';
 
 const int XP_PER_LEVEL = 100;
 
@@ -22,6 +18,7 @@ class ProfilePage extends StatefulWidget {
   State<ProfilePage> createState() => _ProfilePageState();
 }
 
+//Profile page, displays the user's current name and level, as well as all the movies that the user has watched.
 class _ProfilePageState extends State<ProfilePage> {
   _ProfilePageState();
 
@@ -100,7 +97,7 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
           Container(
             height: MediaQuery.of(context).size.height * 0.45,
-            color: Color.fromARGB(255, 227, 240, 255),
+            color: const Color.fromARGB(255, 227, 240, 255),
             child: MediaQuery.removePadding(
               context: context,
               removeTop: true,
@@ -111,10 +108,10 @@ class _ProfilePageState extends State<ProfilePage> {
                       height: 40,
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
-                        color: Color.fromARGB(255, 141, 194, 255),
+                        color: const Color.fromARGB(255, 141, 194, 255),
                         border: Border.all(
                           width: 1.0,
-                          color: Color.fromARGB(255, 227, 240, 255),
+                          color: const Color.fromARGB(255, 227, 240, 255),
                         ),
                       ),
                       child: Text(
@@ -151,7 +148,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 width: MediaQuery.of(context).size.width * 0.3,
                 //Settings button
                 child: ElevatedButton.icon(
-                  label: Text(""),
+                  label: const Text(""),
                   icon: const Icon(
                     Icons.settings,
                     color: Color.fromARGB(255, 255, 255, 255),
@@ -172,8 +169,8 @@ class _ProfilePageState extends State<ProfilePage> {
                       borderRadius: BorderRadius.circular(50.0),
                     ),
                     fixedSize: const Size(100, 100),
-                    padding: EdgeInsets.only(left: 10.0),
-                    backgroundColor: Color.fromARGB(255, 0, 255, 242),
+                    padding: const EdgeInsets.only(left: 10.0),
+                    backgroundColor: const Color.fromARGB(255, 0, 255, 242),
                   ),
                 ),
               ),
@@ -184,6 +181,7 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
+  //Returns the current user's watched movies
   Future<void> getWatchedMovies() async {
     List<Map<String, dynamic>> movies = await DatabaseHelper.getWatchedMovies();
     setState(() {
@@ -191,6 +189,7 @@ class _ProfilePageState extends State<ProfilePage> {
     });
   }
 
+  //Gets the current user's name and sets the user string variable
   Future<void> getUser() async {
     Map<String, dynamic> user =
         await DatabaseHelper.getUser(DatabaseHelper.currentUser.username);
